@@ -5,33 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ארכיון גיליונות אזמרה לשמך</title>
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #34495e;
-            --bg-color: #f4f7f6;
-            --text-color: #333;
-        }
+        :root { --primary-color: #2c3e50; --secondary-color: #34495e; --bg-color: #f4f7f6; --text-color: #333; --accent-color: #27ae60; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; line-height: 1.6; }
         .header { text-align: center; margin-bottom: 30px; }
         .header h1 { color: var(--primary-color); margin-bottom: 5px; }
         .header h3 { color: #7f8c8d; margin-top: 0; font-weight: normal; }
         .search-container { max-width: 800px; margin: 0 auto 30px; }
-        .search-box { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #bdc3c7; border-radius: 8px; box-sizing: border-box; outline: none; transition: border-color 0.3s ease; }
-        .search-box:focus { border-color: var(--primary-color); }
+        .search-box { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #bdc3c7; border-radius: 8px; box-sizing: border-box; outline: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .container { max-width: 800px; margin: 0 auto; }
-        .issue-card { background: #fff; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e0e0e0; }
-        .issue-header { padding: 15px 20px; font-size: 18px; font-weight: bold; background: var(--primary-color); color: #fff; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s ease; }
-        .issue-header:hover { background: var(--secondary-color); }
-        .issue-header::after { content: '▼'; font-size: 14px; transition: transform 0.3s ease; }
+        .issue-card { background: #fff; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e0e0e0; }
+        .issue-header { padding: 15px 20px; font-size: 18px; font-weight: bold; background: var(--primary-color); color: #fff; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .issue-title-main { flex-grow: 1; margin-left: 10px; }
+        .issue-subtitle { font-size: 14px; font-weight: normal; color: #ecf0f1; opacity: 0.9; display: block; margin-top: 2px; }
+        .issue-header::after { content: '▼'; font-size: 12px; margin-right: 10px; transition: transform 0.3s; }
         .issue-card.active .issue-header::after { transform: rotate(180deg); }
-        .issue-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; background: #fafafa; }
-        .issue-card.active .issue-body { padding: 15px 20px; max-height: 5000px; border-top: 1px solid #eee; }
-        .topic-item { padding: 8px 0; border-bottom: 1px dashed #e0e0e0; }
+        .issue-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease; background: #fafafa; }
+        .issue-card.active .issue-body { padding: 15px 20px; max-height: 2000px; border-top: 1px solid #eee; }
+        .topic-item { padding: 6px 0; border-bottom: 1px dashed #e0e0e0; font-size: 15px; }
         .topic-item:last-child { border-bottom: none; }
+        .btn-link { display: inline-block; margin-top: 15px; padding: 10px 20px; background-color: var(--accent-color); color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 14px; transition: background 0.2s; }
+        .btn-link:hover { background-color: #219150; }
         .highlight { background-color: #ffeaa7; padding: 0 2px; border-radius: 3px; }
-        .no-results { text-align: center; color: #7f8c8d; font-size: 18px; display: none; padding: 20px; }
-        .loading { text-align: center; font-size: 20px; color: var(--primary-color); margin-top: 40px; font-weight: bold;}
-        .error-msg { text-align: center; color: #e74c3c; font-weight: bold; margin-top: 20px; display: none; direction: rtl;}
+        .loading { text-align: center; font-size: 18px; margin-top: 40px; }
     </style>
 </head>
 <body>
@@ -42,126 +37,104 @@
 </div>
 
 <div class="search-container">
-    <input type="text" id="searchInput" class="search-box" placeholder="חיפוש נושא, הלכה או מילת מפתח (לדוגמה: שבת, סוכה, בשר בחלב)..." disabled>
+    <input type="text" id="searchInput" class="search-box" placeholder="חיפוש נושא או הלכה...">
 </div>
 
-<div id="loading" class="loading">מתחבר לארכיון וטוען נתונים... ⏳<br><span style="font-size:14px; color:#7f8c8d;">(זה עשוי לקחת מספר שניות)</span></div>
-<div id="errorBox" class="error-msg"></div>
-
+<div id="loading" class="loading">טוען נתונים... ⏳</div>
 <div class="container" id="archiveContainer"></div>
-<div class="no-results" id="noResults">לא נמצאו תוצאות לחיפוש שלך.</div>
 
 <script>
-    // הקישור המעודכן מגוגל (גרסה 4)
     const GOOGLE_DOC_URL = "https://script.google.com/macros/s/AKfycbx5ed1KPQnTAPABV1cJU8uuuDAFO_PSrZ3DemtV1PbwXVyDVNJIZEz_uzwkAyLMSpp2/exec";
-
-    let archiveData = [];
     const container = document.getElementById('archiveContainer');
-    const noResults = document.getElementById('noResults');
     const searchInput = document.getElementById('searchInput');
-    const loadingMessage = document.getElementById('loading');
-    const errorBox = document.getElementById('errorBox');
+    let archiveData = [];
 
-    // שאיבת המידע מגוגל דוקס
+    // טעינה מהירה מהמטמון
+    const cachedData = localStorage.getItem('archive_cache');
+    if (cachedData) {
+        archiveData = JSON.parse(cachedData);
+        renderArchive(archiveData);
+        document.getElementById('loading').style.display = 'none';
+    }
+
     fetch(GOOGLE_DOC_URL)
-        .then(response => {
-            if (!response.ok) { throw new Error('Network response was not ok'); }
-            return response.text();
-        })
+        .then(res => res.text())
         .then(rawText => {
-            if(rawText.includes('<html')) {
-                throw new Error("גוגל חסם את הגישה. ודא שעשית 'פריסה חדשה' והגדרת 'למי יש גישה: כל אחד'");
-            }
-
             const lines = rawText.split(/\r?\n/);
+            const newData = [];
             let currentIssue = null;
 
             lines.forEach(line => {
-                let text = line.replace(/\\s*/g, '').trim();
-                if (!text) return;
-                if (text.includes('ארכיון גיליונות') || text.includes('שע"י הגאון') || text.includes('לחיפוש מהיר')) return;
+                let text = line.trim();
+                if (!text || text.includes('ארכיון') || text.includes('שע"י') || text.includes('לחיפוש מהיר')) return;
+
+                // בדיקה אם השורה מכילה קישור (גוגל סקריפט מחזיר קישורים בפורמט מסוים בדרך כלל)
+                const linkMatch = text.match(/https?:\/\/[^\s]+|\[.*?\]\(https?:\/\/[^\s]+\)/);
 
                 if (text.startsWith('גיליון')) {
-                    if (currentIssue) archiveData.push(currentIssue);
-                    let cleanTitle = text.replace('(לצפייה לחץ כאן)', '').trim();
-                    currentIssue = { title: cleanTitle, topics: [] };
-                } else {
-                    if (currentIssue) currentIssue.topics.push(text);
+                    if (currentIssue) newData.push(currentIssue);
+                    currentIssue = { 
+                        title: text.replace(/\(לצפייה לחץ כאן\)/g, '').trim(), 
+                        subtitle: "", 
+                        link: "", 
+                        topics: [] 
+                    };
+                } else if (currentIssue) {
+                    if (text.includes('http') || text.includes('לצפייה')) {
+                        // חילוץ הקישור
+                        const url = text.match(/https?:\/\/[^\s)\]]+/);
+                        if (url) currentIssue.link = url[0];
+                    } else {
+                        if (currentIssue.topics.length === 0) {
+                            currentIssue.subtitle = text;
+                        }
+                        currentIssue.topics.push(text);
+                    }
                 }
             });
-            if (currentIssue) archiveData.push(currentIssue);
+            if (currentIssue) newData.push(currentIssue);
 
-            loadingMessage.style.display = "none";
-            
-            if(archiveData.length === 0) {
-                throw new Error("הקובץ נטען אבל לא נמצאו גיליונות. ודא שה-ID של המסמך נכון ושיש בו טקסט.");
-            }
-
-            searchInput.disabled = false;
+            archiveData = newData;
+            localStorage.setItem('archive_cache', JSON.stringify(newData));
             renderArchive(archiveData);
-        })
-        .catch(error => {
-            loadingMessage.style.display = "none";
-            errorBox.style.display = "block";
-            errorBox.innerText = "❌ שגיאה בטעינת הנתונים: " + error.message;
-            console.error(error);
+            document.getElementById('loading').style.display = 'none';
         });
 
     function renderArchive(data, searchTerm = "") {
         container.innerHTML = "";
-        let hasResults = false;
-
         data.forEach(issue => {
-            const titleMatch = issue.title.includes(searchTerm);
-            const matchedTopics = issue.topics.filter(topic => topic.includes(searchTerm));
-            
-            if (searchTerm && !titleMatch && matchedTopics.length === 0) return;
-            
-            hasResults = true;
-            const topicsToShow = searchTerm && !titleMatch ? matchedTopics : issue.topics;
+            const match = issue.title.includes(searchTerm) || issue.subtitle.includes(searchTerm) || issue.topics.some(t => t.includes(searchTerm));
+            if (searchTerm && !match) return;
 
             const card = document.createElement('div');
-            card.className = 'issue-card';
-            if (searchTerm) card.classList.add('active');
+            card.className = 'issue-card' + (searchTerm ? ' active' : '');
+            
+            let topicsHtml = issue.topics.map(t => `<div class="topic-item">${highlightText(t, searchTerm)}</div>`).join('');
+            let linkHtml = issue.link ? `<a href="${issue.link}" target="_blank" class="btn-link">לקריאת הגיליון המלא לחץ כאן</a>` : '';
 
-            const header = document.createElement('div');
-            header.className = 'issue-header';
-            header.innerHTML = highlightText(issue.title, searchTerm);
-            header.addEventListener('click', () => card.classList.toggle('active'));
-
-            const body = document.createElement('div');
-            body.className = 'issue-body';
-
-            topicsToShow.forEach(topic => {
-                const item = document.createElement('div');
-                item.className = 'topic-item';
-                item.innerHTML = highlightText(topic, searchTerm);
-                body.appendChild(item);
-            });
-
-            card.appendChild(header);
-            card.appendChild(body);
+            card.innerHTML = `
+                <div class="issue-header" onclick="this.parentElement.classList.toggle('active')">
+                    <div class="issue-title-main">
+                        ${highlightText(issue.title, searchTerm)}
+                        <span class="issue-subtitle">${issue.subtitle ? highlightText(issue.subtitle, searchTerm) : ''}</span>
+                    </div>
+                </div>
+                <div class="issue-body">
+                    ${topicsHtml}
+                    ${linkHtml}
+                </div>
+            `;
             container.appendChild(card);
         });
-
-        noResults.style.display = hasResults ? "none" : "block";
     }
 
     function highlightText(text, term) {
         if (!term) return text;
-        const regex = new RegExp(`(${escapeRegExp(term)})`, 'gi');
-        return text.replace(regex, '<span class="highlight">$1</span>');
+        const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return text.replace(new RegExp(`(${escapedTerm})`, 'gi'), '<span class="highlight">$1</span>');
     }
 
-    function escapeRegExp(string) {
-        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-
-    searchInput.addEventListener('input', (e) => {
-        renderArchive(archiveData, e.target.value.trim());
-    });
+    searchInput.oninput = (e) => renderArchive(archiveData, e.target.value.trim());
 </script>
-
 </body>
-
 </html>
