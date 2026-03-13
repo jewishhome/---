@@ -8,14 +8,13 @@
         :root { --primary-color: #2c3e50; --bg-color: #f4f7f6; --accent-color: #27ae60; --red-donate: #c0392b; --blue-ask: #2980b9; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; direction: rtl; }
         
-        /* מודעה קופצת */
         #popupAd { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 450px; background: white; border: 3px solid var(--primary-color); border-radius: 15px; padding: 30px; z-index: 1000; box-shadow: 0 0 30px rgba(0,0,0,0.3); text-align: center; }
         #popupOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999; }
-        .close-popup { cursor: pointer; color: #888; float: left; font-size: 24px; font-weight: bold; transition: 0.2s; }
-        .close-popup:hover { color: #000; }
+        .close-popup { cursor: pointer; color: #888; float: left; font-size: 24px; font-weight: bold; }
         
         .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { margin: 0; color: var(--primary-color); font-size: clamp(24px, 5vw, 36px); }
+        .header h1 { margin: 0; color: var(--primary-color); font-size: clamp(22px, 5vw, 32px); }
+        .header h3 { margin: 8px 0; color: #7f8c8d; font-weight: normal; font-size: clamp(16px, 4vw, 20px); }
 
         .side-banners { display: flex; flex-direction: column; gap: 12px; max-width: 800px; margin: 0 auto 25px; }
         .banner-btn { padding: 15px; border-radius: 8px; text-align: center; text-decoration: none; font-weight: bold; color: white !important; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s; cursor: pointer; }
@@ -24,24 +23,24 @@
         .btn-ask { background-color: var(--blue-ask); }
 
         .search-box { width: 100%; max-width: 800px; display: block; margin: 0 auto 25px; padding: 15px; border-radius: 8px; border: 2px solid #bdc3c7; font-size: 18px; box-sizing: border-box; outline: none; transition: 0.3s; }
-        .search-box:focus { border-color: var(--primary-color); box-shadow: 0 0 8px rgba(44, 62, 80, 0.2); }
         
         .container { max-width: 800px; margin: 0 auto; }
         .issue-card { background: white; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e0e0e0; overflow: hidden; transition: 0.2s; cursor: pointer; }
-        .issue-card:hover { border-color: #bdc3c7; }
-        .issue-header { padding: 15px 20px; background: var(--primary-color); color: white; font-weight: bold; transition: 0.2s; }
-        .issue-header:hover { background: #34495e; }
+        .issue-header { padding: 15px 20px; background: var(--primary-color); color: white; font-weight: bold; }
         .issue-subtitle { display: block; font-weight: normal; font-size: 14px; opacity: 0.9; margin-top: 4px; }
         
         .issue-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: 0.3s; background: #fafafa; }
         .issue-card.active .issue-body { padding: 25px; max-height: 5000px; border-top: 1px solid #eee; }
         
-        .btn-link { display: inline-block; margin-top: 15px; padding: 12px 25px; background: var(--accent-color); color: white !important; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center; width: 100%; box-sizing: border-box; transition: 0.3s; }
-        .btn-link:hover { background: #219150; }
+        .topic-item { padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 15px; color: #333; }
+        .btn-link { display: inline-block; margin-top: 20px; padding: 12px 25px; background: var(--accent-color); color: white !important; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center; width: 100%; box-sizing: border-box; transition: 0.3s; }
         
         #loadingInfo { text-align: center; padding: 25px; border: 3px solid #e67e22; border-radius: 12px; background: #fff9f4; max-width: 600px; margin: 0 auto 25px; color: #333; }
         .loader { border: 5px solid #f3f3f3; border-top: 5px solid #e67e22; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 10px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* שורת הקרדיט החדשה */
+        .footer-credit { text-align: center; margin-top: 40px; padding: 20px; font-size: 13px; color: #95a5a6; border-top: 1px solid #e0e0e0; }
     </style>
 </head>
 <body>
@@ -49,14 +48,13 @@
 <div id="popupOverlay" onclick="closePopup()"></div>
 <div id="popupAd">
     <span class="close-popup" onclick="closePopup()">&times;</span>
-    <h2 style="color:var(--primary-color)">עדכונים וחדשות</h2>
-    <p id="adText">ברוכים הבאים לארכיון גיליונות "אזמרה לשמך".</p>
+    <p id="adText" style="font-size: 18px; margin: 20px 0;">ברוכים הבאים לארכיון גיליונות "אזמרה לשמך".</p>
     <a id="adLink" href="https://forms.gle/vs5McYqr3HkTaqPt6" target="_blank" class="btn-link" style="background:var(--blue-ask)">לשליחת שאלות לבית ההוראה לחצו כאן</a>
 </div>
 
 <div class="header">
     <h1>ארכיון גיליונות "אזמרה לשמך"</h1>
-    <h3>שע"י הגאון הגדול רבי עמרם פריד שליט"א</h3>
+    <h3>פסקי מורינו הגאון הגדול רבי עמרם פריד שליט"א</h3>
 </div>
 
 <div class="side-banners">
@@ -76,17 +74,19 @@
 
 <div class="container" id="archiveContainer"></div>
 
+<div class="footer-credit">
+    האתר פותח לע"נ ר' חיים מנחם בן חיים גרבובסקי זצ"ל
+</div>
+
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5EQqigLyNHU-afGz5U_JHYgsEawkp-flnV8K9aWe9xFpKSHJjnX_O3QbFyln-xziTAQ/exec";
     let archiveData = [];
 
-    // הצגת מודעה אוטומטית אחרי 4 שניות
     setTimeout(() => {
         document.getElementById('popupAd').style.display = 'block';
         document.getElementById('popupOverlay').style.display = 'block';
     }, 4000);
 
-    // טעינה מהירה מהזיכרון
     const cachedData = localStorage.getItem('azmara_cache_final');
     if (cachedData) {
         archiveData = JSON.parse(cachedData);
@@ -94,10 +94,8 @@
         document.getElementById('statusText').innerText = "מעדכן גיליונות חדשים ברקע...";
         document.getElementById('timeNotice').style.display = 'none';
         document.getElementById('loadingInfo').style.borderColor = "#bdc3c7";
-        document.getElementById('loadingInfo').style.background = "#fff";
     }
 
-    // פונקציית הטיפול בנתונים
     window.handleData = function(json) {
         if (!json || !json.data) return;
         const text = json.data;
@@ -114,11 +112,14 @@
                 if (urlMatch) document.getElementById('adLink').href = urlMatch[0];
                 return;
             }
-            if (!s || s.includes('ארכיון') || s.includes('שע"י')) return;
+            if (!s || s.includes('ארכיון')) return;
             const urlMatch = s.match(/https?:\/\/[^\s\]]+/);
             if (s.startsWith('גיליון')) {
                 if (current) newData.push(current);
-                current = { title: s.replace(/https?:\/\/[^\s\]]+/, '').trim(), subtitle: "", topics: [], link: urlMatch ? urlMatch[0] : "" };
+                let cleanTitle = s.replace(/https?:\/\/[^\s\]]+/g, '')
+                                  .replace(/(\(לצפייה לחץ כאן\)|לצפייה לחץ כאן)/g, '')
+                                  .trim();
+                current = { title: cleanTitle, subtitle: "", topics: [], link: urlMatch ? urlMatch[0] : "" };
             } else if (current) {
                 if (urlMatch && !current.link) current.link = urlMatch[0];
                 else {
@@ -142,7 +143,7 @@
             <div class="issue-card" onclick="this.classList.toggle('active')">
                 <div class="issue-header">${i.title}<span class="issue-subtitle">${i.subtitle}</span></div>
                 <div class="issue-body">
-                    ${i.topics.map(t => `<div style="padding:10px 0; border-bottom:1px dashed #eee;">${t}</div>`).join('')}
+                    ${i.topics.map(t => `<div class="topic-item">${t}</div>`).join('')}
                     ${i.link ? `<a href="${i.link}" target="_blank" class="btn-link">לקריאת הגיליון המלא והורדה</a>` : ''}
                 </div>
             </div>
@@ -154,7 +155,6 @@
         document.getElementById('popupOverlay').style.display = 'none';
     }
 
-    // הפעלה בשיטת JSONP
     const script = document.createElement('script');
     script.src = SCRIPT_URL + "?callback=handleData";
     document.body.appendChild(script);
