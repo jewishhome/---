@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ארכיון גיליונות אזמרה לשמך</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --bg-color: #f4f7f6;
+            --text-color: #333;
+        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 20px; line-height: 1.6; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: var(--primary-color); margin-bottom: 5px; }
+        .header h3 { color: #7f8c8d; margin-top: 0; font-weight: normal; }
+        .search-container { max-width: 800px; margin: 0 auto 30px; }
+        .search-box { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #bdc3c7; border-radius: 8px; box-sizing: border-box; outline: none; transition: border-color 0.3s ease; }
+        .search-box:focus { border-color: var(--primary-color); }
+        .container { max-width: 800px; margin: 0 auto; }
+        .issue-card { background: #fff; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e0e0e0; }
+        .issue-header { padding: 15px 20px; font-size: 18px; font-weight: bold; background: var(--primary-color); color: #fff; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s ease; }
+        .issue-header:hover { background: var(--secondary-color); }
+        .issue-header::after { content: '▼'; font-size: 14px; transition: transform 0.3s ease; }
+        .issue-card.active .issue-header::after { transform: rotate(180deg); }
+        .issue-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; background: #fafafa; }
+        .issue-card.active .issue-body { padding: 15px 20px; max-height: 5000px; border-top: 1px solid #eee; }
+        .topic-item { padding: 8px 0; border-bottom: 1px dashed #e0e0e0; }
+        .topic-item:last-child { border-bottom: none; }
+        .highlight { background-color: #ffeaa7; padding: 0 2px; border-radius: 3px; }
+        .no-results { text-align: center; color: #7f8c8d; font-size: 18px; display: none; padding: 20px; }
+        .loading { text-align: center; font-size: 20px; color: var(--primary-color); margin-top: 40px; font-weight: bold;}
+        .error-msg { text-align: center; color: #e74c3c; font-weight: bold; margin-top: 20px; display: none; direction: rtl;}
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>ארכיון גיליונות "אזמרה לשמך"</h1>
+    <h3>שע"י הגאון הגדול רבי עמרם פריד שליט"א</h3>
+</div>
+
+<div class="search-container">
+    <input type="text" id="searchInput" class="search-box" placeholder="חיפוש נושא, הלכה או מילת מפתח (לדוגמה: שבת, סוכה, בשר בחלב)..." disabled>
+</div>
+
+<div id="loading" class="loading">מתחבר לארכיון וטוען נתונים... ⏳<br><span style="font-size:14px; color:#7f8c8d;">(זה עשוי לקחת מספר שניות)</span></div>
+<div id="errorBox" class="error-msg"></div>
+
+<div class="container" id="archiveContainer"></div>
+<div class="no-results" id="noResults">לא נמצאו תוצאות לחיפוש שלך.</div>
+
+<script>
+    // הקישור המעודכן מגוגל (גרסה 3)
+    const GOOGLE_DOC_URL = "https://script.google.com/macros/s/AKfycbxYi31ZsfuXJTaUa6OGjdfGnvICZAMLwaDWSMw5DAqVkYhTeTZaZUNNrJaBqX-x-lX8xg/exec";
+
+    let archiveData = [];
+    const container = document.getElementById('archiveContainer');
+    const noResults = document.getElementById('noResults');
+    const searchInput = document.getElementById('searchInput');
+    const loadingMessage = document.getElementById('loading');
+    const errorBox = document.getElementById('errorBox');
+
+    // שאיבת המידע מגוגל דוקס
+    fetch(GOOGLE_DOC_URL)
+        .then(response => {
+            if (!response.ok) { throw new Error('Network response was not ok'); }
+            return response.text();
+        })
+        .then(rawText => {
+            if(rawText.includes('<html')) {
+                throw new Error("גוגל חסם את הגישה. ודא שעשית 'פריסה חדשה' והגדרת 'למי יש גישה: כל אחד'");
+            }
+
+            const lines = rawText.split(/\r?\n/);
+            let currentIssue = null;
+
+            lines.forEach(line => {
+                let text = line.replace(/\\s*/g, '').trim();
+                if (!text) return;
+                if (text.includes('ארכיון גיליונות') || text.includes('שע"י הגאון') || text.includes('לחיפוש מהיר')) return;
+
+                if (text.startsWith('גיליון')) {
+                    if (currentIssue) archiveData.push(currentIssue);
+                    let cleanTitle = text.replace('(לצפייה לחץ כאן)', '').trim();
+                    currentIssue = { title: cleanTitle, topics: [] };
+                } else {
+                    if (currentIssue) currentIssue.topics.push(text);
+                }
+            });
+            if (currentIssue) archiveData.push(currentIssue);
+
+            loadingMessage.style.display = "none";
+            
+            if(archiveData.length === 0) {
+                throw new Error("הקובץ נטען אבל לא נמצאו גיליונות. ודא שה-ID של המסמך נכון ושיש בו טקסט.");
+            }
+
+            searchInput.disabled = false;
+            renderArchive(archiveData);
+        })
+        .catch(error => {
+            loadingMessage.style.display = "none";
+            errorBox.style.display = "block";
+            errorBox.innerText = "❌ שגיאה בטעינת הנתונים: " + error.message;
+            console.error(error);
+        });
+
+    function renderArchive(data, searchTerm = "") {
+        container.innerHTML = "";
+        let hasResults = false;
+
+        data.forEach(issue => {
+            const titleMatch = issue.title.includes(searchTerm);
+            const matchedTopics = issue.topics.filter(topic => topic.includes(searchTerm));
+            
+            if (searchTerm && !titleMatch && matchedTopics.length === 0) return;
+            
+            hasResults = true;
+            const topicsToShow = searchTerm && !titleMatch ? matchedTopics : issue.topics;
+
+            const card = document.createElement('div');
+            card.className = 'issue-card';
+            if (searchTerm) card.classList.add('active');
+
+            const header = document.createElement('div');
+            header.className = 'issue-header';
+            header.innerHTML = highlightText(issue.title, searchTerm);
+            header.addEventListener('click', () => card.classList.toggle('active'));
+
+            const body = document.createElement('div');
+            body.className = 'issue-body';
+
+            topicsToShow.forEach(topic => {
+                const item = document.createElement('div');
+                item.className = 'topic-item';
+                item.innerHTML = highlightText(topic, searchTerm);
+                body.appendChild(item);
+            });
+
+            card.appendChild(header);
+            card.appendChild(body);
+            container.appendChild(card);
+        });
+
+        noResults.style.display = hasResults ? "none" : "block";
+    }
+
+    function highlightText(text, term) {
+        if (!term) return text;
+        const regex = new RegExp(`(${escapeRegExp(term)})`, 'gi');
+        return text.replace(regex, '<span class="highlight">$1</span>');
+    }
+
+    function escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    searchInput.addEventListener('input', (e) => {
+        renderArchive(archiveData, e.target.value.trim());
+    });
+</script>
+
+</body>
+</html>
