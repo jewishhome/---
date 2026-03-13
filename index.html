@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>פסקים וגליונות הגאון הגדול ר' עמרם פריד שליט"א</title>
-    
     <meta name="description" content="ארכיון פסקים וגליונות אזמרה לשמך של מורינו הגאון הגדול רבי עמרם פריד שליט"א">
     <meta property="og:title" content="פסקים וגליונות הגאון הגדול ר' עמרם פריד שליט"א">
     <meta property="og:description" content="חיפוש וצפייה בכל גליונות אזמרה לשמך">
@@ -15,28 +14,53 @@
         #popupAd { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 450px; background: white; border: 3px solid var(--primary-color); border-radius: 15px; padding: 30px; z-index: 1000; box-shadow: 0 0 30px rgba(0,0,0,0.3); text-align: center; }
         #popupOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999; }
         .close-popup { cursor: pointer; color: #888; float: left; font-size: 24px; font-weight: bold; }
+        
         .header { text-align: center; margin-bottom: 30px; }
         .header h1 { margin: 0; color: var(--primary-color); font-size: clamp(22px, 5vw, 32px); }
         .header h3 { margin: 8px 0; color: #7f8c8d; font-weight: normal; font-size: clamp(16px, 4vw, 20px); }
+        
         .side-banners { display: flex; flex-direction: column; gap: 12px; max-width: 800px; margin: 0 auto 25px; }
         .banner-btn { padding: 15px; border-radius: 8px; text-align: center; text-decoration: none; font-weight: bold; color: white !important; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s; cursor: pointer; }
         .banner-btn:hover { opacity: 0.9; transform: translateY(-2px); }
         .btn-donate { background-color: var(--red-donate); }
         .btn-ask { background-color: var(--blue-ask); }
+        
         .search-box { width: 100%; max-width: 800px; display: block; margin: 0 auto 25px; padding: 15px; border-radius: 8px; border: 2px solid #bdc3c7; font-size: 18px; box-sizing: border-box; outline: none; }
+        
         .container { max-width: 800px; margin: 0 auto; }
         .issue-card { background: white; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e0e0e0; overflow: hidden; transition: 0.2s; cursor: pointer; }
-        .issue-header { padding: 15px 20px; background: var(--primary-color); color: white; font-weight: bold; }
-        .issue-subtitle { display: block; font-weight: normal; font-size: 14px; opacity: 0.9; margin-top: 4px; }
+        .issue-header { padding: 15px 20px; background: var(--primary-color); color: white; font-weight: bold; font-size: 17px; }
+        .issue-subtitle { display: block; font-weight: normal; font-size: 14px; color: #ecf0f1; margin-top: 4px; }
         .issue-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: 0.3s; background: #fafafa; }
         .issue-card.active .issue-body { padding: 25px; max-height: 5000px; border-top: 1px solid #eee; }
+        
         .topic-item { padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 15px; color: #333; }
-        .btn-link { display: inline-block; margin-top: 20px; padding: 12px 25px; background: var(--accent-color); color: white !important; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center; width: 100%; box-sizing: border-box; transition: 0.3s; }
+        .btn-link { display: inline-block; margin-top: 15px; padding: 12px 25px; background: var(--accent-color); color: white !important; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center; width: 100%; box-sizing: border-box; transition: 0.3s; }
         .btn-link:hover { background: #219150; }
+        
+        /* כפתור שיתוף במייל */
+        .action-bar { display: flex; gap: 10px; margin-top: 10px; justify-content: center; }
+        .btn-mail { flex: 1; padding: 10px 15px; border-radius: 5px; text-decoration: none; font-size: 14px; font-weight: bold; text-align: center; color: white !important; background-color: #e67e22; border: none; cursor: pointer; transition: 0.2s; }
+        .btn-mail:hover { opacity: 0.9; transform: translateY(-1px); }
+
         .footer-credit { text-align: center; margin-top: 40px; padding: 25px; font-size: 18px; color: #34495e; border-top: 2px solid #bdc3c7; font-weight: bold; background: #fff; }
+        
         #loadingInfo { text-align: center; padding: 25px; border: 3px solid #e67e22; border-radius: 12px; background: #fff9f4; max-width: 600px; margin: 0 auto 25px; }
         .loader { border: 5px solid #f3f3f3; border-top: 5px solid #e67e22; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 10px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        #scrollTopBtn { display: none; position: fixed; bottom: 30px; left: 30px; z-index: 99; font-size: 24px; border: none; outline: none; background-color: var(--accent-color); color: white; cursor: pointer; width: 50px; height: 50px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.3s; line-height: 50px; text-align: center; }
+        #scrollTopBtn:hover { background-color: #1e8449; transform: translateY(-3px); }
+
+        /* הגדרות מיוחדות להדפסה (למקרה שמישהו לוחץ Ctrl+P במחשב) */
+        @media print {
+            body { background-color: white; padding: 0; }
+            .side-banners, .search-box, .header h3, #popupAd, #popupOverlay, #scrollTopBtn, .btn-link, .action-bar, .footer-credit { display: none !important; }
+            .issue-card { border: 1px solid #000; break-inside: avoid; margin-bottom: 20px; }
+            .issue-header { background: white !important; color: black !important; border-bottom: 2px solid #000; }
+            .issue-subtitle { color: #333 !important; }
+            .issue-card.active .issue-body { border-top: none; }
+        }
     </style>
 </head>
 <body>
@@ -71,6 +95,8 @@
     האתר פותח לע"נ ר' חיים מנחם בן חיים גרבובסקי זצ"ל
 </div>
 
+<button onclick="scrollToTop()" id="scrollTopBtn" title="חזרה למעלה">↑</button>
+
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWVHM0CJGss1XQxUVp2DFJl5aPVS4lbCRIN4wtzUHeC8Kcpu1OUjYX4agKfJ7yBAlRSg/exec";
     
@@ -81,7 +107,8 @@
         document.getElementById('popupOverlay').style.display = 'block';
     }, 4000);
 
-    const cachedData = localStorage.getItem('azmara_v6_final');
+    // שינוי מפתח הזיכרון כדי שהשינויים יחולו מיד אצלך
+    const cachedData = localStorage.getItem('azmara_v10_email_only');
     if (cachedData) {
         archiveData = JSON.parse(cachedData);
         render(archiveData);
@@ -92,7 +119,7 @@
         if (!json || !json.data) return;
         const text = json.data;
         const lines = text.split('\n');
-        const newData = [];
+        let newData = [];
         let current = null;
 
         lines.forEach(line => {
@@ -127,8 +154,18 @@
         });
         if (current) newData.push(current);
         
+        // מיון: מספרי הגיליונות מהגדול לקטן, בלי מספר לסוף
+        newData.sort((a, b) => {
+            let numA = parseInt((a.title.match(/\d+/) || [0])[0], 10);
+            let numB = parseInt((b.title.match(/\d+/) || [0])[0], 10);
+            if (numA > 0 && numB > 0) return numB - numA; 
+            if (numA > 0 && numB === 0) return -1; 
+            if (numA === 0 && numB > 0) return 1; 
+            return 0; 
+        });
+        
         archiveData = newData;
-        localStorage.setItem('azmara_v6_final', JSON.stringify(newData));
+        localStorage.setItem('azmara_v10_email_only', JSON.stringify(newData));
         render(archiveData);
         document.getElementById('loadingInfo').style.display = 'none';
     };
@@ -142,23 +179,55 @@
             i.topics.some(t => t.includes(term))
         );
         
-        container.innerHTML = filtered.map(i => `
+        if (filtered.length === 0) {
+            container.innerHTML = `<div style="text-align:center; padding: 40px; font-size: 18px; color: #7f8c8d;">לא נמצאו תוצאות לחיפוש "${term}"</div>`;
+            return;
+        }
+
+        container.innerHTML = filtered.map(i => {
+            let mainHeader = i.subtitle ? i.subtitle : i.title;
+            let subHeader = i.subtitle ? i.title : '';
+            
+            // הכנת קישור לשליחה במייל
+            let shareText = `פסקי הלכה - ${mainHeader}\n${subHeader}\n\nלצפייה בגיליון:\n${i.link || 'אין קישור מצורף'}`;
+            let mailLink = `mailto:?subject=${encodeURIComponent('גיליון מעניין: ' + mainHeader)}&body=${encodeURIComponent(shareText)}`;
+
+            return `
             <div class="issue-card" onclick="this.classList.toggle('active')">
                 <div class="issue-header">
-                    ${i.title}
-                    <span class="issue-subtitle">${i.subtitle}</span>
+                    ${mainHeader}
+                    ${subHeader ? `<span class="issue-subtitle">${subHeader}</span>` : ''}
                 </div>
-                <div class="issue-body">
+                <div class="issue-body" onclick="event.stopPropagation()">
                     ${i.topics.map(t => `<div class="topic-item">${t}</div>`).join('')}
                     ${i.link ? `<a href="${i.link}" target="_blank" class="btn-link">לקריאת הגיליון המלא והורדה</a>` : ''}
+                    
+                    <div class="action-bar">
+                        <a href="${mailLink}" target="_blank" class="btn-mail">✉️ שלח גיליון למייל</a>
+                    </div>
                 </div>
             </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     function closePopup() {
         document.getElementById('popupAd').style.display = 'none';
         document.getElementById('popupOverlay').style.display = 'none';
+    }
+
+    // הופעת כפתור למעלה בגלילה
+    window.onscroll = function() {
+        let btn = document.getElementById("scrollTopBtn");
+        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+            btn.style.display = "block";
+        } else {
+            btn.style.display = "none";
+        }
+    };
+
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     const script = document.createElement('script');
