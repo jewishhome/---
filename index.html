@@ -67,7 +67,9 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz5EQqigLyNHU-afGz5U_JHYgsEawkp-flnV8K9aWe9xFpKSHJjnX_O3QbFyln-xziTAQ/exec";
+    // הקישור המעודכן ששלחת
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWVHM0CJGss1XQxUVp2DFJl5aPVS4lbCRIN4wtzUHeC8Kcpu1OUjYX4agKfJ7yBAlRSg/exec";
+    
     let archiveData = [];
 
     setTimeout(() => {
@@ -75,8 +77,7 @@
         document.getElementById('popupOverlay').style.display = 'block';
     }, 4000);
 
-    // טעינה מהזיכרון תחת מפתח חדש כדי לאפס נתונים ישנים ופגומים
-    const cachedData = localStorage.getItem('azmara_v5_fix');
+    const cachedData = localStorage.getItem('azmara_v6_final');
     if (cachedData) {
         archiveData = JSON.parse(cachedData);
         render(archiveData);
@@ -94,7 +95,6 @@
             let s = line.trim();
             if (!s || s.includes('ארכיון')) return;
 
-            // זיהוי הודעת פרסום לפופ-אפ
             if (s.startsWith('פרסום:')) {
                 const urlMatch = s.match(/https?:\/\/[^\s\]]+/);
                 let cleanAd = s.replace('פרסום:', '').replace(/\[?https?:\/\/[^\s\]]+\]?/g, '').trim();
@@ -103,29 +103,18 @@
                 return;
             }
 
-            // חיפוש קישור בשורה (גם אם הוא בתוך סוגריים מרובעים מהקוד של גוגל)
             const urlMatch = s.match(/https?:\/\/[^\s\]]+/);
             
             if (s.startsWith('גיליון')) {
                 if (current) newData.push(current);
-                
-                // 1. שמירת הקישור אם נמצא בכותרת
                 let foundLink = urlMatch ? urlMatch[0] : "";
-                
-                // 2. ניקוי יסודי של הכותרת מכל מה שקשור לקישור או לטקסט עזר
                 let cleanTitle = s.replace(/\[?https?:\/\/[^\s\]]+\]?/g, '')
                                   .replace(/(\(לצפייה לחץ כאן\)|לצפייה לחץ כאן|לחץ כאן לצפייה|לצפיה|\[|\])/g, '')
                                   .trim();
-                
                 current = { title: cleanTitle, subtitle: "", topics: [], link: foundLink };
             } else if (current) {
-                // אם מצאנו קישור בשורה פנימית ועדיין אין קישור לגיליון - נשמור אותו
-                if (urlMatch && !current.link) {
-                    current.link = urlMatch[0];
-                }
-                
-                // ניקוי השורה מקישורים וסוגריים להצגה בתוך הגיליון
-                let cleanLine = s.replace(/\[?https?:\/\/[^\s\]]+\]?/g, '').trim();
+                if (urlMatch && !current.link) current.link = urlMatch[0];
+                let cleanLine = s.replace(/\[?https?:\/\/[^\s\]]+\]?/g, '').replace(/[\[\]]/g, '').trim();
                 if (cleanLine) {
                     if (!current.subtitle) current.subtitle = cleanLine;
                     else current.topics.push(cleanLine);
@@ -135,7 +124,7 @@
         if (current) newData.push(current);
         
         archiveData = newData;
-        localStorage.setItem('azmara_v5_fix', JSON.stringify(newData));
+        localStorage.setItem('azmara_v6_final', JSON.stringify(newData));
         render(archiveData);
         document.getElementById('loadingInfo').style.display = 'none';
     };
