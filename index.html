@@ -17,16 +17,16 @@
         .issue-header { padding: 15px 20px; font-size: 18px; font-weight: bold; background: var(--primary-color); color: #fff; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .issue-title-main { flex-grow: 1; margin-left: 10px; }
         .issue-subtitle { font-size: 14px; font-weight: normal; color: #ecf0f1; opacity: 0.9; display: block; margin-top: 2px; }
-        .issue-header::after { content: '▼'; font-size: 12px; margin-right: 10px; transition: transform 0.3s; }
+        .issue-header::after { content: '▼'; font-size: 12px; transition: transform 0.3s; }
         .issue-card.active .issue-header::after { transform: rotate(180deg); }
         .issue-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease; background: #fafafa; }
-        .issue-card.active .issue-body { padding: 15px 20px; max-height: 2000px; border-top: 1px solid #eee; }
+        .issue-card.active .issue-body { padding: 15px 20px; max-height: 5000px; border-top: 1px solid #eee; }
         .topic-item { padding: 6px 0; border-bottom: 1px dashed #e0e0e0; font-size: 15px; }
         .topic-item:last-child { border-bottom: none; }
-        .btn-link { display: inline-block; margin-top: 15px; padding: 10px 20px; background-color: var(--accent-color); color: white; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 14px; transition: background 0.2s; }
+        .btn-link { display: inline-block; margin: 15px 0; padding: 10px 25px; background-color: var(--accent-color); color: white !important; text-decoration: none !important; border-radius: 5px; font-weight: bold; font-size: 14px; text-align: center; }
         .btn-link:hover { background-color: #219150; }
         .highlight { background-color: #ffeaa7; padding: 0 2px; border-radius: 3px; }
-        .loading { text-align: center; font-size: 18px; margin-top: 40px; }
+        .loading { text-align: center; font-size: 18px; margin-top: 40px; color: var(--primary-color); }
     </style>
 </head>
 <body>
@@ -40,17 +40,18 @@
     <input type="text" id="searchInput" class="search-box" placeholder="חיפוש נושא או הלכה...">
 </div>
 
-<div id="loading" class="loading">טוען נתונים... ⏳</div>
+<div id="loading" class="loading">טוען נתונים מהדוקס... ⏳</div>
 <div class="container" id="archiveContainer"></div>
 
 <script>
+    // הקישור שלך (גרסה 4)
     const GOOGLE_DOC_URL = "https://script.google.com/macros/s/AKfycbx5ed1KPQnTAPABV1cJU8uuuDAFO_PSrZ3DemtV1PbwXVyDVNJIZEz_uzwkAyLMSpp2/exec";
     const container = document.getElementById('archiveContainer');
     const searchInput = document.getElementById('searchInput');
     let archiveData = [];
 
-    // טעינה מהירה מהמטמון
-    const cachedData = localStorage.getItem('archive_cache');
+    // טעינה מהירה מהמטמון (Cache) כדי שלא תחכה חצי דקה בכל כניסה
+    const cachedData = localStorage.getItem('azmara_cache');
     if (cachedData) {
         archiveData = JSON.parse(cachedData);
         renderArchive(archiveData);
@@ -68,22 +69,20 @@
                 let text = line.trim();
                 if (!text || text.includes('ארכיון') || text.includes('שע"י') || text.includes('לחיפוש מהיר')) return;
 
-                // בדיקה אם השורה מכילה קישור (גוגל סקריפט מחזיר קישורים בפורמט מסוים בדרך כלל)
-                const linkMatch = text.match(/https?:\/\/[^\s]+|\[.*?\]\(https?:\/\/[^\s]+\)/);
-
                 if (text.startsWith('גיליון')) {
                     if (currentIssue) newData.push(currentIssue);
+                    // שומרים את כל השורה כדי לחלץ ממנה קישור אם יש
+                    const urlMatch = line.match(/https?:\/\/[^\s)\]]+/);
                     currentIssue = { 
-                        title: text.replace(/\(לצפייה לחץ כאן\)/g, '').trim(), 
+                        title: text.split('(')[0].replace('גיליון', 'גיליון ').trim(), 
                         subtitle: "", 
-                        link: "", 
+                        link: urlMatch ? urlMatch[0] : "", 
                         topics: [] 
                     };
                 } else if (currentIssue) {
-                    if (text.includes('http') || text.includes('לצפייה')) {
-                        // חילוץ הקישור
-                        const url = text.match(/https?:\/\/[^\s)\]]+/);
-                        if (url) currentIssue.link = url[0];
+                    const urlMatch = text.match(/https?:\/\/[^\s)\]]+/);
+                    if (urlMatch) {
+                        currentIssue.link = urlMatch[0];
                     } else {
                         if (currentIssue.topics.length === 0) {
                             currentIssue.subtitle = text;
@@ -95,9 +94,15 @@
             if (currentIssue) newData.push(currentIssue);
 
             archiveData = newData;
-            localStorage.setItem('archive_cache', JSON.stringify(newData));
+            localStorage.setItem('azmara_cache', JSON.stringify(newData));
             renderArchive(archiveData);
             document.getElementById('loading').style.display = 'none';
+        })
+        .catch(err => {
+            console.error("Error fetching data:", err);
+            if (!cachedData) {
+                document.getElementById('loading').innerHTML = "⚠️ שגיאה בטעינה. ודא שהסקריפט בגוגל פתוח ל'כל אחד'.";
+            }
         });
 
     function renderArchive(data, searchTerm = "") {
@@ -110,7 +115,7 @@
             card.className = 'issue-card' + (searchTerm ? ' active' : '');
             
             let topicsHtml = issue.topics.map(t => `<div class="topic-item">${highlightText(t, searchTerm)}</div>`).join('');
-            let linkHtml = issue.link ? `<a href="${issue.link}" target="_blank" class="btn-link">לקריאת הגיליון המלא לחץ כאן</a>` : '';
+            let linkHtml = issue.link ? `<center><a href="${issue.link}" target="_blank" class="btn-link">לקריאת הגיליון המלא לחץ כאן</a></center>` : '';
 
             card.innerHTML = `
                 <div class="issue-header" onclick="this.parentElement.classList.toggle('active')">
