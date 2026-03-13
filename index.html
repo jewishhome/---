@@ -16,7 +16,6 @@
         .header { text-align: center; margin-bottom: 20px; }
         .header h1 { margin: 0; color: var(--primary-color); }
 
-        /* באנרים בצד / כפתורי פעולה */
         .side-banners { display: flex; flex-direction: column; gap: 10px; max-width: 800px; margin: 0 auto 20px; }
         .banner-btn { padding: 15px; border-radius: 8px; text-align: center; text-decoration: none; font-weight: bold; color: white !important; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .btn-donate { background-color: var(--red-donate); }
@@ -32,7 +31,7 @@
         .issue-card.active .issue-body { padding: 20px; max-height: 5000px; border-top: 1px solid #eee; }
         .btn-link { display: inline-block; margin-top: 15px; padding: 12px 25px; background: var(--accent-color); color: white !important; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center; width: 100%; box-sizing: border-box; }
         
-        .loading { text-align: center; padding: 20px; font-weight: bold; color: #7f8c8d; }
+        .loading-info { text-align: center; padding: 10px; font-size: 14px; color: #7f8c8d; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -40,9 +39,9 @@
 <div id="popupOverlay" onclick="closePopup()"></div>
 <div id="popupAd">
     <span class="close-popup" onclick="closePopup()">&times;</span>
-    <h2 style="color:var(--primary-color)">ברוכים הבאים לארכיון</h2>
-    <p id="adText">טוען הודעה מהדוקס...</p>
-    <a id="adLink" href="#" target="_blank" class="btn-link" style="background:var(--blue-ask)">לחצו כאן לפרטים</a>
+    <h2 style="color:var(--primary-color)">עדכונים וחדשות</h2>
+    <p id="adText">ברוכים הבאים לארכיון הגיליונות המעודכן.</p>
+    <a id="adLink" href="https://forms.gle/vs5McYqr3HkTaqPt6" target="_blank" class="btn-link" style="background:var(--blue-ask)">ליצירת קשר</a>
 </div>
 
 <div class="header">
@@ -57,15 +56,22 @@
 
 <input type="text" id="searchInput" class="search-box" placeholder="חיפוש נושא, הלכה או מספר גיליון...">
 
-<div id="loading" class="loading">טוען את כל הנתונים... ⏳</div>
+<div id="loadingInfo" class="loading-info">טוען נתונים...</div>
 <div class="container" id="archiveContainer"></div>
 
 <script>
-    // הקישור החדש של פריסה 1 (JSONP)
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzq1anDNyN_FY3b1RidkExort_8ypLPJxKElvZM0lsV_j8bcnhXUP60nupwIvMosfvzzw/exec";
-    
     let archiveData = [];
 
+    // 1. קודם כל בודקים אם יש מידע שמור בזיכרון (Cache)
+    const cachedData = localStorage.getItem('azmara_cache');
+    if (cachedData) {
+        archiveData = JSON.parse(cachedData);
+        render(archiveData);
+        document.getElementById('loadingInfo').innerText = "מעדכן גיליונות חדשים ברקע... 🔄";
+    }
+
+    // 2. פונקציית הטיפול בנתונים מגוגל
     function handleData(json) {
         const text = json.data;
         const lines = text.split('\n');
@@ -74,8 +80,6 @@
 
         lines.forEach(line => {
             let s = line.trim();
-            
-            // זיהוי תוכן למודעה קופצת מהדוקס (אם כתוב "פרסום:")
             if (s.startsWith('פרסום:')) {
                 const content = s.replace('פרסום:', '').trim();
                 const urlMatch = content.match(/https?:\/\/[^\s\]]+/);
@@ -83,10 +87,8 @@
                 if (urlMatch) document.getElementById('adLink').href = urlMatch[0];
                 return;
             }
-
             if (!s || s.includes('ארכיון') || s.includes('שע"י')) return;
             const urlMatch = s.match(/https?:\/\/[^\s\]]+/);
-
             if (s.startsWith('גיליון')) {
                 if (current) newData.push(current);
                 current = { title: s.split('[')[0].trim(), subtitle: "", topics: [], link: urlMatch ? urlMatch[0] : "" };
@@ -100,15 +102,31 @@
         });
         if (current) newData.push(current);
         
+        // עדכון הזיכרון והצגת הנתונים החדשים
         archiveData = newData;
+        localStorage.setItem('azmara_cache', JSON.stringify(newData));
         render(archiveData);
-        document.getElementById('loading').style.display = 'none';
+        document.getElementById('loadingInfo').style.display = 'none';
         
-        // הצגת פופ-אפ אחרי 3 שניות
+        // הצגת פופ-אפ רק אם עברו 3 שניות
         setTimeout(() => {
             document.getElementById('popupAd').style.display = 'block';
             document.getElementById('popupOverlay').style.display = 'block';
         }, 3000);
+    }
+
+    function render(data, term = "") {
+        const container = document.getElementById('archiveContainer');
+        const filtered = data.filter(i => !term || i.title.includes(term) || i.topics.some(t => t.includes(term)));
+        container.innerHTML = filtered.map(i => `
+            <div class="issue-card" onclick="this.classList.toggle('active')">
+                <div class="issue-header">${i.title}<span class="issue-subtitle">${i.subtitle}</span></div>
+                <div class="issue-body">
+                    ${i.topics.map(t => `<div style="padding:8px 0; border-bottom:1px dashed #eee;">${t}</div>`).join('')}
+                    ${i.link ? `<a href="${i.link}" target="_blank" class="btn-link">לקריאת הגיליון המלא</a>` : ''}
+                </div>
+            </div>
+        `).join('');
     }
 
     function closePopup() {
@@ -116,21 +134,7 @@
         document.getElementById('popupOverlay').style.display = 'none';
     }
 
-    function render(data, term = "") {
-        const container = document.getElementById('archiveContainer');
-        container.innerHTML = data.filter(i => !term || i.title.includes(term) || i.topics.some(t => t.includes(term)))
-            .map(i => `
-                <div class="issue-card" onclick="this.classList.toggle('active')">
-                    <div class="issue-header">${i.title}<span class="issue-subtitle">${i.subtitle}</span></div>
-                    <div class="issue-body">
-                        ${i.topics.map(t => `<div style="padding:8px 0; border-bottom:1px dashed #eee;">${t}</div>`).join('')}
-                        ${i.link ? `<a href="${i.link}" target="_blank" class="btn-link">לקריאת הגיליון המלא</a>` : ''}
-                    </div>
-                </div>
-            `).join('');
-    }
-
-    // הפעלת הטעינה
+    // 3. טעינת הסקריפט מגוגל (JSONP)
     const script = document.createElement('script');
     script.src = SCRIPT_URL + "?callback=handleData";
     document.body.appendChild(script);
