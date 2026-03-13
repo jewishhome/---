@@ -8,7 +8,6 @@
         :root { --primary-color: #2c3e50; --bg-color: #f4f7f6; --accent-color: #27ae60; --red-donate: #c0392b; --blue-ask: #2980b9; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: #333; }
         
-        /* באנר פרסום עליון שמשתנה מהדוקס */
         #topBanner { background: #fff3cd; border-bottom: 1px solid #ffeeba; padding: 12px; text-align: center; position: relative; display: none; font-weight: bold; z-index: 100; }
         #topBanner a { color: #856404; text-decoration: underline; margin-right: 5px; }
         #closeBanner { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 22px; color: #856404; }
@@ -17,7 +16,6 @@
         .header h1 { margin: 0; color: var(--primary-color); font-size: 28px; }
         .header h3 { margin: 5px 0; color: #7f8c8d; font-weight: normal; }
 
-        /* כפתורי הפרסום/פעולה שביקשת */
         .action-buttons { display: flex; justify-content: center; gap: 15px; max-width: 800px; margin: 15px auto; padding: 0 20px; flex-wrap: wrap; }
         .action-btn { flex: 1; min-width: 250px; padding: 15px; border-radius: 10px; text-align: center; text-decoration: none; font-weight: bold; color: white !important; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .action-btn:hover { transform: translateY(-2px); opacity: 0.9; }
@@ -27,26 +25,23 @@
         .btn-ask { background-color: var(--blue-ask); border-bottom: 4px solid #1c5a85; }
 
         .search-container { max-width: 800px; margin: 20px auto; padding: 0 20px; }
-        .search-box { width: 100%; padding: 15px; border-radius: 8px; border: 2px solid #bdc3c7; font-size: 18px; box-sizing: border-box; outline: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+        .search-box { width: 100%; padding: 15px; border-radius: 8px; border: 2px solid #bdc3c7; font-size: 18px; box-sizing: border-box; outline: none; }
         
         .container { max-width: 800px; margin: 0 auto; padding: 0 20px 40px; }
         .issue-card { background: white; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e0e0e0; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .issue-header { padding: 15px 20px; background: var(--primary-color); color: white; cursor: pointer; position: relative; }
         .issue-header::after { content: '▼'; position: absolute; left: 20px; top: 50%; transform: translateY(-50%); font-size: 12px; opacity: 0.7; }
         .issue-card.active .issue-header::after { content: '▲'; }
-        .issue-subtitle { display: block; font-weight: normal; font-size: 14px; opacity: 0.9; margin-top: 5px; line-height: 1.4; }
+        .issue-subtitle { display: block; font-weight: normal; font-size: 14px; opacity: 0.9; margin-top: 5px; }
         .issue-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: all 0.3s ease; background: #fafafa; }
         .issue-card.active .issue-body { padding: 20px; max-height: 5000px; border-top: 1px solid #eee; }
         .topic-item { padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 15px; color: #444; }
         .topic-item:last-child { border-bottom: none; }
-        
         .btn-download { display: inline-block; margin-top: 20px; padding: 12px 30px; background-color: var(--accent-color); color: white !important; text-decoration: none; border-radius: 6px; font-weight: bold; width: 100%; box-sizing: border-box; text-align: center; }
 
-        /* טעינה */
         .loading-container { text-align: center; padding: 50px 20px; }
         .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .loading-text { font-size: 18px; color: #555; line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -73,15 +68,12 @@
 </div>
 
 <div class="search-container">
-    <input type="text" id="searchInput" class="search-box" placeholder="חיפוש נושא, הלכה או מספר גיליון..." disabled>
+    <input type="text" id="searchInput" class="search-box" placeholder="חיפוש נושא, הלכה או מספר גיליון...">
 </div>
 
 <div id="loading" class="loading-container">
     <div class="loader"></div>
-    <div class="loading-text" id="loadingText">
-        טוען את הארכיון...<br>
-        <small>זמן הטעינה יכול לקחת כדקה בפעם הראשונה. נא להמתין.</small>
-    </div>
+    <div class="loading-text" id="loadingText">טוען את הארכיון... נא להמתין.</div>
 </div>
 
 <div class="container" id="archiveContainer"></div>
@@ -95,43 +87,48 @@
     function render(data, term = "") {
         const container = document.getElementById('archiveContainer');
         const searchTerm = term.trim();
-        container.innerHTML = data.filter(i => !searchTerm || i.title.includes(searchTerm) || (i.subtitle && i.subtitle.includes(searchTerm)) || i.topics.some(t => t.includes(searchTerm)))
-            .map(i => `
-                <div class="issue-card" onclick="this.classList.toggle('active')">
-                    <div class="issue-header">
-                        ${i.title}
-                        <span class="issue-subtitle">${i.subtitle || ''}</span>
-                    </div>
-                    <div class="issue-body" onclick="event.stopPropagation()">
-                        ${i.topics.map(t => `<div class="topic-item">${t}</div>`).join('')}
-                        ${i.link ? `<a href="${i.link}" target="_blank" class="btn-download">לקריאת הגיליון המלא והורדה</a>` : ''}
-                    </div>
+        const filtered = data.filter(i => 
+            !searchTerm || 
+            i.title.includes(searchTerm) || 
+            (i.subtitle && i.subtitle.includes(searchTerm)) || 
+            i.topics.some(t => t.includes(searchTerm))
+        );
+
+        container.innerHTML = filtered.map(i => `
+            <div class="issue-card" onclick="this.classList.toggle('active')">
+                <div class="issue-header">
+                    ${i.title}
+                    <span class="issue-subtitle">${i.subtitle || ''}</span>
                 </div>
-            `).join('');
+                <div class="issue-body" onclick="event.stopPropagation()">
+                    ${i.topics.map(t => `<div class="topic-item">${t}</div>`).join('')}
+                    ${i.link ? `<a href="${i.link}" target="_blank" class="btn-download">לקריאת הגיליון המלא והורדה</a>` : ''}
+                </div>
+            </div>
+        `).join('');
     }
 
     async function init() {
         const loadingDiv = document.getElementById('loading');
-        const loadingText = document.getElementById('loadingText');
         const cached = localStorage.getItem('azmara_data');
 
         if (cached) {
             archiveData = JSON.parse(cached);
             render(archiveData);
-            loadingText.innerHTML = "מעדכן נתונים... האתר ייפתח מיד.";
+            loadingDiv.style.display = 'none';
         }
 
         try {
             const response = await fetch(PROXY_URL);
             const rawText = await response.text();
-            const lines = rawText.split(/\r?\n/);
+            const lines = rawText.split(/\n/);
             const newData = [];
             let currentIssue = null;
 
             lines.forEach(line => {
                 let text = line.trim();
-                
-                // טיפול בבאנר פרסום מהדוקס
+                if (!text) return;
+
                 if (text.startsWith('פרסום:')) {
                     const content = text.replace('פרסום:', '').trim();
                     const urlMatch = content.match(/https?:\/\/[^\s\]]+/);
@@ -140,31 +137,35 @@
                     return;
                 }
 
-                if (!text || text.includes('ארכיון') || text.includes('שע"י')) return;
-
                 const urlMatch = text.match(/https?:\/\/[^\s\]]+/);
+                
                 if (text.startsWith('גיליון')) {
                     if (currentIssue) newData.push(currentIssue);
-                    currentIssue = { title: text.split('[')[0].trim(), subtitle: "", topics: [], link: urlMatch ? urlMatch[0] : "" };
+                    currentIssue = { 
+                        title: text.split('[')[0].split('(')[0].trim(), 
+                        subtitle: "", 
+                        topics: [], 
+                        link: urlMatch ? urlMatch[0] : "" 
+                    };
                 } else if (currentIssue) {
-                    if (urlMatch) {
+                    if (urlMatch && !currentIssue.link) {
                         currentIssue.link = urlMatch[0];
-                    } else {
+                    } else if (!text.includes('http')) {
                         if (!currentIssue.subtitle) currentIssue.subtitle = text;
-                        currentIssue.topics.push(text);
+                        else currentIssue.topics.push(text);
                     }
                 }
             });
             if (currentIssue) newData.push(currentIssue);
 
-            archiveData = newData;
-            localStorage.setItem('azmara_data', JSON.stringify(newData));
-            render(archiveData);
-            loadingDiv.style.display = 'none';
-            document.getElementById('searchInput').disabled = false;
+            if (newData.length > 0) {
+                archiveData = newData;
+                localStorage.setItem('azmara_data', JSON.stringify(newData));
+                render(archiveData);
+                loadingDiv.style.display = 'none';
+            }
         } catch (err) {
             console.error(err);
-            if (!cached) loadingText.innerHTML = "❌ שגיאה בטעינה. ודא שהחיבור לאינטרנט תקין ונסה לרענן.";
         }
     }
 
