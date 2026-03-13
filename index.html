@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>פסקים וגליונות הגאון הגדול ר' עמרם פריד שליט"א</title>
+    
+    <meta name="description" content="ארכיון פסקים וגליונות אזמרה לשמך של מורינו הגאון הגדול רבי עמרם פריד שליט"א">
+    <meta property="og:title" content="פסקים וגליונות הגאון הגדול ר' עמרם פריד שליט"א">
+    <meta property="og:description" content="חיפוש וצפייה בכל גליונות אזמרה לשמך">
+
     <style>
         :root { --primary-color: #2c3e50; --bg-color: #f4f7f6; --accent-color: #27ae60; --red-donate: #c0392b; --blue-ask: #2980b9; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; direction: rtl; }
@@ -113,7 +118,7 @@
                 current = { title: cleanTitle, subtitle: "", topics: [], link: foundLink };
             } else if (current) {
                 if (urlMatch && !current.link) current.link = urlMatch[0];
-                let cleanLine = s.replace(/\[?https?:\/\/[^\s\]]+\]?/g, '').replace(/[\[\]]/g, '').trim();
+                let cleanLine = s.replace(/\[?https?:\/\/[^\s\]]+/g, '').replace(/[\[\]]/g, '').trim();
                 if (cleanLine) {
                     if (!current.subtitle) current.subtitle = cleanLine;
                     else current.topics.push(cleanLine);
