@@ -5,134 +5,137 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ארכיון גיליונות אזמרה לשמך</title>
     <style>
-        :root { --primary-color: #2c3e50; --bg-color: #f4f7f6; --accent-color: #27ae60; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; color: #333; direction: rtl; }
+        :root { --primary-color: #2c3e50; --bg-color: #f4f7f6; --accent-color: #27ae60; --red-donate: #c0392b; --blue-ask: #2980b9; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; direction: rtl; }
+        
+        /* מודעה קופצת */
+        #popupAd { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 400px; background: white; border: 3px solid var(--primary-color); border-radius: 15px; padding: 20px; z-index: 1000; box-shadow: 0 0 20px rgba(0,0,0,0.5); text-align: center; }
+        #popupOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999; }
+        .close-popup { cursor: pointer; color: #888; float: left; font-size: 20px; font-weight: bold; }
         
         .header { text-align: center; margin-bottom: 20px; }
-        .header h1 { margin: 0; color: var(--primary-color); font-size: 26px; }
-        .header h3 { margin: 5px 0; color: #7f8c8d; font-weight: normal; font-size: 18px; }
+        .header h1 { margin: 0; color: var(--primary-color); }
 
-        .search-box { width: 100%; max-width: 800px; display: block; margin: 0 auto 20px; padding: 15px; border-radius: 8px; border: 2px solid #bdc3c7; font-size: 18px; box-sizing: border-box; outline: none; }
+        /* באנרים בצד / כפתורי פעולה */
+        .side-banners { display: flex; flex-direction: column; gap: 10px; max-width: 800px; margin: 0 auto 20px; }
+        .banner-btn { padding: 15px; border-radius: 8px; text-align: center; text-decoration: none; font-weight: bold; color: white !important; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-donate { background-color: var(--red-donate); }
+        .btn-ask { background-color: var(--blue-ask); }
+
+        .search-box { width: 100%; max-width: 800px; display: block; margin: 0 auto 20px; padding: 15px; border-radius: 8px; border: 2px solid #bdc3c7; font-size: 18px; box-sizing: border-box; }
         
         .container { max-width: 800px; margin: 0 auto; }
-        .issue-card { background: white; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e0e0e0; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .issue-header { padding: 15px 20px; background: var(--primary-color); color: white; cursor: pointer; position: relative; }
+        .issue-card { background: white; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e0e0e0; overflow: hidden; }
+        .issue-header { padding: 15px 20px; background: var(--primary-color); color: white; cursor: pointer; font-weight: bold; }
         .issue-subtitle { display: block; font-weight: normal; font-size: 14px; opacity: 0.9; margin-top: 4px; }
-        
-        .issue-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: 0.3s ease; background: #fafafa; }
+        .issue-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: 0.3s; background: #fafafa; }
         .issue-card.active .issue-body { padding: 20px; max-height: 5000px; border-top: 1px solid #eee; }
-        
-        .topic-item { padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 15px; }
-        .topic-item:last-child { border-bottom: none; }
-        
         .btn-link { display: inline-block; margin-top: 15px; padding: 12px 25px; background: var(--accent-color); color: white !important; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center; width: 100%; box-sizing: border-box; }
         
-        .footer-links { text-align: center; margin-top: 40px; font-size: 15px; border-top: 2px solid #ddd; padding-top: 20px; padding-bottom: 30px; line-height: 2; }
-        .footer-links a { color: #2980b9; text-decoration: none; margin: 0 10px; font-weight: bold; }
-
         .loading { text-align: center; padding: 20px; font-weight: bold; color: #7f8c8d; }
     </style>
 </head>
 <body>
+
+<div id="popupOverlay" onclick="closePopup()"></div>
+<div id="popupAd">
+    <span class="close-popup" onclick="closePopup()">&times;</span>
+    <h2 style="color:var(--primary-color)">ברוכים הבאים לארכיון</h2>
+    <p id="adText">טוען הודעה מהדוקס...</p>
+    <a id="adLink" href="#" target="_blank" class="btn-link" style="background:var(--blue-ask)">לחצו כאן לפרטים</a>
+</div>
 
 <div class="header">
     <h1>ארכיון גיליונות "אזמרה לשמך"</h1>
     <h3>שע"י הגאון הגדול רבי עמרם פריד שליט"א</h3>
 </div>
 
-<input type="text" id="searchInput" class="search-box" placeholder="חיפוש נושא, הלכה או מספר גיליון...">
-
-<div id="loading" class="loading">טוען נתונים מהארכיון... ⏳</div>
-<div class="container" id="archiveContainer"></div>
-
-<div class="footer-links">
-    <div>שאלות ותגובות: 6191265@gmail.com</div>
-    <a href="https://www.matara.pro/nedarimplus/online/?S=uSwj" target="_blank">תרומות לבית ההוראה לחץ כאן</a> | 
-    <a href="https://forms.gle/vs5McYqr3HkTaqPt6" target="_blank">לשליחת שאלות לחץ כאן</a>
+<div class="side-banners">
+    <a href="https://www.matara.pro/nedarimplus/online/?S=uSwj" target="_blank" class="banner-btn btn-donate">תרומות לבית ההוראה לחץ כאן</a>
+    <a href="https://forms.gle/vs5McYqr3HkTaqPt6" target="_blank" class="banner-btn btn-ask">לשליחת שאלות / מייל למזכירות</a>
 </div>
 
+<input type="text" id="searchInput" class="search-box" placeholder="חיפוש נושא, הלכה או מספר גיליון...">
+
+<div id="loading" class="loading">טוען את כל הנתונים... ⏳</div>
+<div class="container" id="archiveContainer"></div>
+
 <script>
-    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbx16QHCHhKDnOIVytK2G6BfPerjgLmc9Y91PI5mOBIgiJF665yGoC3Uz9nNbwbZr1MMZg/exec";
+    // הקישור החדש של פריסה 1 (JSONP)
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzq1anDNyN_FY3b1RidkExort_8ypLPJxKElvZM0lsV_j8bcnhXUP60nupwIvMosfvzzw/exec";
+    
     let archiveData = [];
+
+    function handleData(json) {
+        const text = json.data;
+        const lines = text.split('\n');
+        const newData = [];
+        let current = null;
+
+        lines.forEach(line => {
+            let s = line.trim();
+            
+            // זיהוי תוכן למודעה קופצת מהדוקס (אם כתוב "פרסום:")
+            if (s.startsWith('פרסום:')) {
+                const content = s.replace('פרסום:', '').trim();
+                const urlMatch = content.match(/https?:\/\/[^\s\]]+/);
+                document.getElementById('adText').innerText = content.split('[')[0].trim();
+                if (urlMatch) document.getElementById('adLink').href = urlMatch[0];
+                return;
+            }
+
+            if (!s || s.includes('ארכיון') || s.includes('שע"י')) return;
+            const urlMatch = s.match(/https?:\/\/[^\s\]]+/);
+
+            if (s.startsWith('גיליון')) {
+                if (current) newData.push(current);
+                current = { title: s.split('[')[0].trim(), subtitle: "", topics: [], link: urlMatch ? urlMatch[0] : "" };
+            } else if (current) {
+                if (urlMatch && !current.link) current.link = urlMatch[0];
+                else {
+                    if (!current.subtitle) current.subtitle = s;
+                    current.topics.push(s);
+                }
+            }
+        });
+        if (current) newData.push(current);
+        
+        archiveData = newData;
+        render(archiveData);
+        document.getElementById('loading').style.display = 'none';
+        
+        // הצגת פופ-אפ אחרי 3 שניות
+        setTimeout(() => {
+            document.getElementById('popupAd').style.display = 'block';
+            document.getElementById('popupOverlay').style.display = 'block';
+        }, 3000);
+    }
+
+    function closePopup() {
+        document.getElementById('popupAd').style.display = 'none';
+        document.getElementById('popupOverlay').style.display = 'none';
+    }
 
     function render(data, term = "") {
         const container = document.getElementById('archiveContainer');
-        const searchTerm = term.trim();
-        container.innerHTML = data.filter(i => 
-            !searchTerm || i.title.includes(searchTerm) || i.topics.some(t => t.includes(searchTerm))
-        ).map(i => `
-            <div class="issue-card" onclick="this.classList.toggle('active')">
-                <div class="issue-header">
-                    ${i.title}
-                    <span class="issue-subtitle">${i.subtitle || ''}</span>
+        container.innerHTML = data.filter(i => !term || i.title.includes(term) || i.topics.some(t => t.includes(term)))
+            .map(i => `
+                <div class="issue-card" onclick="this.classList.toggle('active')">
+                    <div class="issue-header">${i.title}<span class="issue-subtitle">${i.subtitle}</span></div>
+                    <div class="issue-body">
+                        ${i.topics.map(t => `<div style="padding:8px 0; border-bottom:1px dashed #eee;">${t}</div>`).join('')}
+                        ${i.link ? `<a href="${i.link}" target="_blank" class="btn-link">לקריאת הגיליון המלא</a>` : ''}
+                    </div>
                 </div>
-                <div class="issue-body">
-                    ${i.topics.map(t => `<div class="topic-item">${t}</div>`).join('')}
-                    ${i.link ? `<a href="${i.link}" target="_blank" class="btn-link">לקריאת הגיליון המלא והורדה</a>` : ''}
-                </div>
-            </div>
-        `).join('');
+            `).join('');
     }
 
-    async function init() {
-        // טעינה מהירה מהזיכרון
-        const cached = localStorage.getItem('azmara_stable_v3');
-        if (cached) {
-            archiveData = JSON.parse(cached);
-            render(archiveData);
-            document.getElementById('loading').style.display = 'none';
-        }
-
-        try {
-            // עדכון הנתונים מגוגל
-            const res = await fetch(GOOGLE_URL);
-            const text = await res.text();
-            
-            // בדיקה שקיבלנו טקסט ולא שגיאה
-            if (text.includes('<!DOCTYPE')) return;
-
-            const lines = text.split('\n');
-            const newData = [];
-            let current = null;
-
-            lines.forEach(line => {
-                let s = line.trim();
-                if (!s || s.includes('ארכיון') || s.includes('שע"י')) return;
-                
-                const urlMatch = s.match(/https?:\/\/[^\s\]]+/);
-
-                if (s.startsWith('גיליון')) {
-                    if (current) newData.push(current);
-                    current = { 
-                        title: s.split('[')[0].split('(')[0].trim(), 
-                        subtitle: "", 
-                        topics: [], 
-                        link: urlMatch ? urlMatch[0] : "" 
-                    };
-                } else if (current) {
-                    if (urlMatch && !current.link) {
-                        current.link = urlMatch[0];
-                    } else if (!s.includes('http')) {
-                        if (!current.subtitle) current.subtitle = s;
-                        else current.topics.push(s);
-                    }
-                }
-            });
-            if (current) newData.push(current);
-
-            if (newData.length > 0) {
-                archiveData = newData;
-                localStorage.setItem('azmara_stable_v3', JSON.stringify(newData));
-                render(archiveData);
-                document.getElementById('loading').style.display = 'none';
-            }
-        } catch (e) {
-            console.log("Update check failed");
-        }
-    }
+    // הפעלת הטעינה
+    const script = document.createElement('script');
+    script.src = SCRIPT_URL + "?callback=handleData";
+    document.body.appendChild(script);
 
     document.getElementById('searchInput').oninput = (e) => render(archiveData, e.target.value);
-    init();
 </script>
 </body>
 </html>
