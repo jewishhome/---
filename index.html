@@ -72,7 +72,9 @@
 <div id="popupOverlay" onclick="closePopup()"></div>
 <div id="popupAd">
     <span class="close-popup" onclick="closePopup()">&times;</span>
-    <p id="adText" style="font-size: 18px; margin: 20px 0;">ברוכים הבאים לארכיון גיליונות "אזמרה לשמך".</p>
+    <p id="adText" style="font-size: 18px; margin: 20px 0;">
+        <a href="https://groups.google.com/g/azamera717" target="_blank" style="color: var(--blue-ask); font-weight: bold; text-decoration: underline;">להצטרפות לקבלת לתפוצה לחצו כאן</a>
+    </p>
     <a id="adLink" href="https://forms.gle/vs5McYqr3HkTaqPt6" target="_blank" class="btn-link" style="background:var(--blue-ask)">לשליחת שאלות לבית ההוראה לחצו כאן</a>
 </div>
 
@@ -122,7 +124,7 @@
         document.getElementById('popupOverlay').style.display = 'block';
     }, 4000);
 
-    const cachedData = localStorage.getItem('azmara_v11_filters');
+    const cachedData = localStorage.getItem('azmara_v12_popup');
     if (cachedData) {
         archiveData = JSON.parse(cachedData);
         render(archiveData);
@@ -140,6 +142,7 @@
             let s = line.trim();
             if (!s || s.includes('ארכיון')) return;
 
+            // אם שמתם שורת "פרסום:" בגוגל דוקס - זה ידרוס את הקישור של התפוצה וישים את המודעה שלכם במקום
             if (s.startsWith('פרסום:')) {
                 const urlMatch = s.match(/https?:\/\/[^\s\]]+/);
                 let cleanAd = s.replace('פרסום:', '').replace(/\[?https?:\/\/[^\s\]]+\]?/g, '').trim();
@@ -178,7 +181,7 @@
         });
         
         archiveData = newData;
-        localStorage.setItem('azmara_v11_filters', JSON.stringify(newData));
+        localStorage.setItem('azmara_v12_popup', JSON.stringify(newData));
         render(archiveData);
         document.getElementById('loadingInfo').style.display = 'none';
     };
