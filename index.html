@@ -7,24 +7,32 @@
     <style>
         :root { --primary-color: #2c3e50; --bg-color: #f4f7f6; --accent-color: #27ae60; --red-donate: #c0392b; --blue-ask: #2980b9; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; direction: rtl; }
+        
+        /* מודעה קופצת */
         #popupAd { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 450px; background: white; border: 3px solid var(--primary-color); border-radius: 15px; padding: 30px; z-index: 1000; box-shadow: 0 0 30px rgba(0,0,0,0.3); text-align: center; }
         #popupOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999; }
         .close-popup { cursor: pointer; color: #888; float: left; font-size: 24px; font-weight: bold; }
+        
         .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { margin: 0; color: var(--primary-color); }
+        .header h1 { margin: 0; color: var(--primary-color); font-size: clamp(24px, 5vw, 36px); }
+
         .side-banners { display: flex; flex-direction: column; gap: 12px; max-width: 800px; margin: 0 auto 25px; }
-        .banner-btn { padding: 15px; border-radius: 8px; text-align: center; text-decoration: none; font-weight: bold; color: white !important; cursor: pointer; transition: 0.3s; }
-        .banner-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+        .banner-btn { padding: 15px; border-radius: 8px; text-align: center; text-decoration: none; font-weight: bold; color: white !important; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s; cursor: pointer; }
+        .banner-btn:hover { opacity: 0.9; transform: translateY(-2px); }
         .btn-donate { background-color: var(--red-donate); }
         .btn-ask { background-color: var(--blue-ask); }
+
         .search-box { width: 100%; max-width: 800px; display: block; margin: 0 auto 25px; padding: 15px; border-radius: 8px; border: 2px solid #bdc3c7; font-size: 18px; box-sizing: border-box; outline: none; }
+        
         .container { max-width: 800px; margin: 0 auto; }
-        .issue-card { background: white; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e0e0e0; overflow: hidden; }
+        .issue-card { background: white; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e0e0e0; overflow: hidden; transition: 0.2s; }
         .issue-header { padding: 15px 20px; background: var(--primary-color); color: white; cursor: pointer; font-weight: bold; }
         .issue-subtitle { display: block; font-weight: normal; font-size: 14px; opacity: 0.9; margin-top: 4px; }
         .issue-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: 0.3s; background: #fafafa; }
         .issue-card.active .issue-body { padding: 25px; max-height: 5000px; border-top: 1px solid #eee; }
+        
         .btn-link { display: inline-block; margin-top: 15px; padding: 12px 25px; background: var(--accent-color); color: white !important; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center; width: 100%; box-sizing: border-box; }
+        
         #loadingInfo { text-align: center; padding: 25px; border: 3px solid #e67e22; border-radius: 12px; background: #fff9f4; max-width: 600px; margin: 0 auto 25px; color: #333; }
         .loader { border: 5px solid #f3f3f3; border-top: 5px solid #e67e22; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 10px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -54,71 +62,74 @@
 
 <div id="loadingInfo">
     <div class="loader"></div>
-    <div id="statusText" style="font-weight: bold; font-size: 18px;">מתחבר לארכיון הנתונים...</div>
-    <div id="timeNotice" style="font-size: 15px; margin-top: 8px; color: #c0392b; font-weight: bold; border-top: 1px solid #ffccbc; padding-top: 10px;">
-        שימו לב: במידה וזו כניסתכם הראשונה לאתר, הטעינה עשויה לקחת מספר דקות. נא לא לסגור את הדף.
-    </div>
+    <div id="statusText" style="font-weight: bold; font-size: 18px;">טוען נתונים במהירות...</div>
+    <div id="timeNotice" style="font-size: 14px; margin-top: 8px; color: #c0392b;">בפעם הראשונה הטעינה עשויה לקחת זמן קצר. נא להמתין.</div>
 </div>
 
 <div class="container" id="archiveContainer"></div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_lTrBgfMK2LObjK_A8CU_I7KuJLsvu31yTzE1Qf_9z8I-n6T8bhhxVIIVYuUtAnxmPw/exec";
+    // הקישור החדש שלך בפורמט טקסט
+    const TXT_URL = "https://docs.google.com/document/d/e/2PACX-1vQS2OVr6IQ2D4lUmiFFjIe97C0jl8WaZTnedLZ5QQH90fHUCieqTCa6WEIUGTpIbZjS7SBkT5x6nd2b/pub?embedded=true";
+
     let archiveData = [];
 
-    // הצגת מודעה ללא קשר לטעינה אחרי 4 שניות
-    setTimeout(() => {
-        if(document.getElementById('popupAd').style.display !== 'block') {
-            document.getElementById('popupAd').style.display = 'block';
-            document.getElementById('popupOverlay').style.display = 'block';
-        }
-    }, 4000);
-
-    const cached = localStorage.getItem('azmara_cache');
+    // ניסיון טעינה מהזיכרון למהירות מיידית
+    const cached = localStorage.getItem('azmara_cache_fast');
     if (cached) {
         archiveData = JSON.parse(cached);
         render(archiveData);
-        document.getElementById('statusText').innerText = "מעדכן גיליונות ברקע...";
-        document.getElementById('timeNotice').style.display = 'none';
-        document.getElementById('loadingInfo').style.borderColor = "#bdc3c7";
+        document.getElementById('loadingInfo').style.display = 'none';
     }
 
-    window.handleData = function(json) {
-        if (!json || !json.data) return;
-        const text = json.data;
-        const lines = text.split('\n');
-        const newData = [];
-        let current = null;
+    async function loadData() {
+        try {
+            // שימוש ב-CORS Proxy כדי לקרוא את תוכן ה-HTML ולחלץ טקסט
+            const response = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(TXT_URL));
+            const json = await response.json();
+            
+            // ניקוי תגיות HTML כדי לקבל טקסט נקי
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = json.contents;
+            const text = tempDiv.innerText || tempDiv.textContent;
+            
+            const lines = text.split('\n');
+            const newData = [];
+            let current = null;
 
-        lines.forEach(line => {
-            let s = line.trim();
-            if (s.startsWith('פרסום:')) {
-                const content = s.replace('פרסום:', '').trim();
-                const urlMatch = content.match(/https?:\/\/[^\s\]]+/);
-                document.getElementById('adText').innerText = content.split('[')[0].trim();
-                if (urlMatch) document.getElementById('adLink').href = urlMatch[0];
-                return;
-            }
-            if (!s || s.includes('ארכיון') || s.includes('שע"י')) return;
-            const urlMatch = s.match(/https?:\/\/[^\s\]]+/);
-            if (s.startsWith('גיליון')) {
-                if (current) newData.push(current);
-                current = { title: s.split('[')[0].trim(), subtitle: "", topics: [], link: urlMatch ? urlMatch[0] : "" };
-            } else if (current) {
-                if (urlMatch && !current.link) current.link = urlMatch[0];
-                else {
-                    if (!current.subtitle) current.subtitle = s;
-                    current.topics.push(s);
+            lines.forEach(line => {
+                let s = line.trim();
+                if (!s || s.includes('ארכיון') || s.includes('שע"י')) return;
+
+                const urlMatch = s.match(/https?:\/\/[^\s\]]+/);
+
+                if (s.startsWith('גיליון')) {
+                    if (current) newData.push(current);
+                    current = { title: s.split('http')[0].trim(), subtitle: "", topics: [], link: urlMatch ? urlMatch[0] : "" };
+                } else if (current) {
+                    if (urlMatch && !current.link) current.link = urlMatch[0];
+                    else {
+                        if (!current.subtitle) current.subtitle = s;
+                        current.topics.push(s);
+                    }
                 }
-            }
-        });
-        if (current) newData.push(current);
-        
-        archiveData = newData;
-        localStorage.setItem('azmara_cache', JSON.stringify(newData));
-        render(archiveData);
-        document.getElementById('loadingInfo').style.display = 'none';
-    };
+            });
+            if (current) newData.push(current);
+            
+            archiveData = newData;
+            localStorage.setItem('azmara_cache_fast', JSON.stringify(newData));
+            render(archiveData);
+            document.getElementById('loadingInfo').style.display = 'none';
+            
+            setTimeout(() => {
+                document.getElementById('popupAd').style.display = 'block';
+                document.getElementById('popupOverlay').style.display = 'block';
+            }, 3000);
+
+        } catch (e) {
+            console.error(e);
+        }
+    }
 
     function render(data, term = "") {
         const container = document.getElementById('archiveContainer');
@@ -127,7 +138,7 @@
             <div class="issue-card" onclick="this.classList.toggle('active')">
                 <div class="issue-header">${i.title}<span class="issue-subtitle">${i.subtitle}</span></div>
                 <div class="issue-body">
-                    ${i.topics.map(t => `<div style="padding:10px 0; border-bottom:1px dashed #eee;">${t}</div>`).join('')}
+                    ${i.topics.map(t => `<div style="padding:8px 0; border-bottom:1px dashed #eee;">${t}</div>`).join('')}
                     ${i.link ? `<a href="${i.link}" target="_blank" class="btn-link">לקריאת הגיליון המלא והורדה</a>` : ''}
                 </div>
             </div>
@@ -139,10 +150,7 @@
         document.getElementById('popupOverlay').style.display = 'none';
     }
 
-    const script = document.createElement('script');
-    script.src = SCRIPT_URL + (SCRIPT_URL.includes('?') ? '&' : '?') + "callback=handleData";
-    document.body.appendChild(script);
-
+    loadData();
     document.getElementById('searchInput').oninput = (e) => render(archiveData, e.target.value);
 </script>
 </body>
