@@ -31,7 +31,11 @@
         .issue-card.active .issue-body { padding: 20px; max-height: 5000px; border-top: 1px solid #eee; }
         .btn-link { display: inline-block; margin-top: 15px; padding: 12px 25px; background: var(--accent-color); color: white !important; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center; width: 100%; box-sizing: border-box; }
         
-        .loading-info { text-align: center; padding: 10px; font-size: 14px; color: #7f8c8d; font-weight: bold; }
+        /* עיצוב הודעת הטעינה המשופר */
+        #loadingInfo { text-align: center; padding: 25px; border: 3px solid #e67e22; border-radius: 12px; background: #fff9f4; max-width: 600px; margin: 0 auto 20px; color: #333; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #e67e22; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 10px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .heavy-notice { font-size: 15px; margin-top: 8px; color: #c0392b; font-weight: bold; border-top: 1px solid #ffccbc; padding-top: 10px; }
     </style>
 </head>
 <body>
@@ -56,22 +60,30 @@
 
 <input type="text" id="searchInput" class="search-box" placeholder="חיפוש נושא, הלכה או מספר גיליון...">
 
-<div id="loadingInfo" class="loading-info">טוען נתונים...</div>
+<div id="loadingInfo">
+    <div class="loader"></div>
+    <div id="statusText" style="font-weight: bold; font-size: 18px;">מתחבר לארכיון הנתונים...</div>
+    <div id="timeNotice" class="heavy-notice">
+        שימו לב: במידה וזו כניסתכם הראשונה לאתר, הטעינה עשויה לקחת מספר דקות בשל עומס הנתונים. נא לא לסגור את הדף.
+    </div>
+</div>
+
 <div class="container" id="archiveContainer"></div>
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzq1anDNyN_FY3b1RidkExort_8ypLPJxKElvZM0lsV_j8bcnhXUP60nupwIvMosfvzzw/exec";
     let archiveData = [];
 
-    // 1. קודם כל בודקים אם יש מידע שמור בזיכרון (Cache)
     const cachedData = localStorage.getItem('azmara_cache');
     if (cachedData) {
         archiveData = JSON.parse(cachedData);
         render(archiveData);
-        document.getElementById('loadingInfo').innerText = "מעדכן גיליונות חדשים ברקע... 🔄";
+        document.getElementById('statusText').innerText = "מעדכן גיליונות חדשים ברקע...";
+        document.getElementById('timeNotice').style.display = 'none';
+        document.getElementById('loadingInfo').style.borderColor = "#bdc3c7";
+        document.getElementById('loadingInfo').style.background = "#fff";
     }
 
-    // 2. פונקציית הטיפול בנתונים מגוגל
     function handleData(json) {
         const text = json.data;
         const lines = text.split('\n');
@@ -102,13 +114,11 @@
         });
         if (current) newData.push(current);
         
-        // עדכון הזיכרון והצגת הנתונים החדשים
         archiveData = newData;
         localStorage.setItem('azmara_cache', JSON.stringify(newData));
         render(archiveData);
         document.getElementById('loadingInfo').style.display = 'none';
         
-        // הצגת פופ-אפ רק אם עברו 3 שניות
         setTimeout(() => {
             document.getElementById('popupAd').style.display = 'block';
             document.getElementById('popupOverlay').style.display = 'block';
@@ -134,7 +144,6 @@
         document.getElementById('popupOverlay').style.display = 'none';
     }
 
-    // 3. טעינת הסקריפט מגוגל (JSONP)
     const script = document.createElement('script');
     script.src = SCRIPT_URL + "?callback=handleData";
     document.body.appendChild(script);
