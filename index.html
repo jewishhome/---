@@ -34,13 +34,14 @@
         
         .topic-item { padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 15px; color: #333; }
         .btn-link { display: inline-block; margin-top: 20px; padding: 12px 25px; background: var(--accent-color); color: white !important; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center; width: 100%; box-sizing: border-box; transition: 0.3s; }
+        .btn-link:hover { background: #219150; }
         
         #loadingInfo { text-align: center; padding: 25px; border: 3px solid #e67e22; border-radius: 12px; background: #fff9f4; max-width: 600px; margin: 0 auto 25px; color: #333; }
         .loader { border: 5px solid #f3f3f3; border-top: 5px solid #e67e22; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 10px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* שורת הקרדיט החדשה */
-        .footer-credit { text-align: center; margin-top: 40px; padding: 20px; font-size: 13px; color: #95a5a6; border-top: 1px solid #e0e0e0; }
+        /* שורת הקרדיט המוגדלת */
+        .footer-credit { text-align: center; margin-top: 40px; padding: 25px; font-size: 18px; color: #34495e; border-top: 2px solid #bdc3c7; font-weight: bold; background: #fff; }
     </style>
 </head>
 <body>
@@ -87,7 +88,8 @@
         document.getElementById('popupOverlay').style.display = 'block';
     }, 4000);
 
-    const cachedData = localStorage.getItem('azmara_cache_final');
+    // טעינת זיכרון
+    const cachedData = localStorage.getItem('azmara_cache_final_v2');
     if (cachedData) {
         archiveData = JSON.parse(cachedData);
         render(archiveData);
@@ -116,8 +118,9 @@
             const urlMatch = s.match(/https?:\/\/[^\s\]]+/);
             if (s.startsWith('גיליון')) {
                 if (current) newData.push(current);
+                // ניקוי כותרות משופר
                 let cleanTitle = s.replace(/https?:\/\/[^\s\]]+/g, '')
-                                  .replace(/(\(לצפייה לחץ כאן\)|לצפייה לחץ כאן)/g, '')
+                                  .replace(/(\(לצפייה לחץ כאן\)|לצפייה לחץ כאן|לחץ כאן לצפייה|לצפיה)/g, '')
                                   .trim();
                 current = { title: cleanTitle, subtitle: "", topics: [], link: urlMatch ? urlMatch[0] : "" };
             } else if (current) {
@@ -131,7 +134,8 @@
         if (current) newData.push(current);
         
         archiveData = newData;
-        localStorage.setItem('azmara_cache_final', JSON.stringify(newData));
+        // שמירה תחת מפתח חדש כדי לרענן את התצוגה אצל כולם
+        localStorage.setItem('azmara_cache_final_v2', JSON.stringify(newData));
         render(archiveData);
         document.getElementById('loadingInfo').style.display = 'none';
     };
