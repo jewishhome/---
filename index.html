@@ -36,7 +36,7 @@
 <div id="popupAd">
     <span class="close-popup" onclick="closePopup()">&times;</span>
     <h2 style="color:var(--primary-color)">עדכונים וחדשות</h2>
-    <p id="adText">טוען הודעה מעודכנת...</p>
+    <p id="adText">ברוכים הבאים לארכיון גיליונות "אזמרה לשמך".</p>
     <a id="adLink" href="https://forms.gle/vs5McYqr3HkTaqPt6" target="_blank" class="btn-link" style="background:var(--blue-ask)">לשליחת שאלות לבית ההוראה לחצו כאן</a>
 </div>
 
@@ -56,7 +56,7 @@
     <div class="loader"></div>
     <div id="statusText" style="font-weight: bold; font-size: 18px;">מתחבר לארכיון הנתונים...</div>
     <div id="timeNotice" style="font-size: 15px; margin-top: 8px; color: #c0392b; font-weight: bold; border-top: 1px solid #ffccbc; padding-top: 10px;">
-        שימו לב: במידה וזו כניסתכם הראשונה לאתר, הטעינה עשויה לקחת מספר דקות בשל נפח הנתונים. נא לא לסגור את הדף.
+        שימו לב: במידה וזו כניסתכם הראשונה לאתר, הטעינה עשויה לקחת מספר דקות. נא לא לסגור את הדף.
     </div>
 </div>
 
@@ -64,8 +64,15 @@
 
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_lTrBgfMK2LObjK_A8CU_I7KuJLsvu31yTzE1Qf_9z8I-n6T8bhhxVIIVYuUtAnxmPw/exec";
-    
     let archiveData = [];
+
+    // הצגת מודעה ללא קשר לטעינה אחרי 4 שניות
+    setTimeout(() => {
+        if(document.getElementById('popupAd').style.display !== 'block') {
+            document.getElementById('popupAd').style.display = 'block';
+            document.getElementById('popupOverlay').style.display = 'block';
+        }
+    }, 4000);
 
     const cached = localStorage.getItem('azmara_cache');
     if (cached) {
@@ -77,6 +84,7 @@
     }
 
     window.handleData = function(json) {
+        if (!json || !json.data) return;
         const text = json.data;
         const lines = text.split('\n');
         const newData = [];
@@ -110,11 +118,6 @@
         localStorage.setItem('azmara_cache', JSON.stringify(newData));
         render(archiveData);
         document.getElementById('loadingInfo').style.display = 'none';
-        
-        setTimeout(() => {
-            document.getElementById('popupAd').style.display = 'block';
-            document.getElementById('popupOverlay').style.display = 'block';
-        }, 3000);
     };
 
     function render(data, term = "") {
