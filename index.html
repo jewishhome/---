@@ -5,167 +5,129 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ארכיון גיליונות אזמרה לשמך</title>
     <style>
-        :root { --primary-color: #2c3e50; --bg-color: #f4f7f6; --accent-color: #27ae60; --red-donate: #c0392b; --blue-ask: #2980b9; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); margin: 0; padding: 0; color: #333; }
+        :root { --primary-color: #2c3e50; --bg-color: #f4f7f6; --accent-color: #27ae60; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; color: #333; direction: rtl; }
         
-        #topBanner { background: #fff3cd; border-bottom: 1px solid #ffeeba; padding: 12px; text-align: center; position: relative; display: none; font-weight: bold; z-index: 100; }
-        #topBanner a { color: #856404; text-decoration: underline; margin-right: 5px; }
-        #closeBanner { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 22px; color: #856404; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { margin: 0; color: var(--primary-color); font-size: 26px; }
+        .header h3 { margin: 5px 0; color: #7f8c8d; font-weight: normal; font-size: 18px; }
 
-        .header { text-align: center; padding: 25px 20px 10px; }
-        .header h1 { margin: 0; color: var(--primary-color); font-size: 28px; }
-        .header h3 { margin: 5px 0; color: #7f8c8d; font-weight: normal; }
-
-        .action-buttons { display: flex; justify-content: center; gap: 15px; max-width: 800px; margin: 15px auto; padding: 0 20px; flex-wrap: wrap; }
-        .action-btn { flex: 1; min-width: 250px; padding: 15px; border-radius: 10px; text-align: center; text-decoration: none; font-weight: bold; color: white !important; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .action-btn:hover { transform: translateY(-2px); opacity: 0.9; }
-        .action-btn span { font-size: 13px; font-weight: normal; margin-top: 4px; opacity: 0.9; }
+        .search-box { width: 100%; max-width: 800px; display: block; margin: 0 auto 20px; padding: 15px; border-radius: 8px; border: 2px solid #bdc3c7; font-size: 18px; box-sizing: border-box; outline: none; }
         
-        .btn-donate { background-color: var(--red-donate); border-bottom: 4px solid #962d22; }
-        .btn-ask { background-color: var(--blue-ask); border-bottom: 4px solid #1c5a85; }
-
-        .search-container { max-width: 800px; margin: 20px auto; padding: 0 20px; }
-        .search-box { width: 100%; padding: 15px; border-radius: 8px; border: 2px solid #bdc3c7; font-size: 18px; box-sizing: border-box; outline: none; }
-        
-        .container { max-width: 800px; margin: 0 auto; padding: 0 20px 40px; }
+        .container { max-width: 800px; margin: 0 auto; }
         .issue-card { background: white; border-radius: 8px; margin-bottom: 12px; border: 1px solid #e0e0e0; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .issue-header { padding: 15px 20px; background: var(--primary-color); color: white; cursor: pointer; position: relative; }
-        .issue-header::after { content: '▼'; position: absolute; left: 20px; top: 50%; transform: translateY(-50%); font-size: 12px; opacity: 0.7; }
-        .issue-card.active .issue-header::after { content: '▲'; }
-        .issue-subtitle { display: block; font-weight: normal; font-size: 14px; opacity: 0.9; margin-top: 5px; }
-        .issue-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: all 0.3s ease; background: #fafafa; }
+        .issue-subtitle { display: block; font-weight: normal; font-size: 14px; opacity: 0.9; margin-top: 4px; }
+        
+        .issue-body { padding: 0 20px; max-height: 0; overflow: hidden; transition: 0.3s ease; background: #fafafa; }
         .issue-card.active .issue-body { padding: 20px; max-height: 5000px; border-top: 1px solid #eee; }
-        .topic-item { padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 15px; color: #444; }
+        
+        .topic-item { padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 15px; }
         .topic-item:last-child { border-bottom: none; }
-        .btn-download { display: inline-block; margin-top: 20px; padding: 12px 30px; background-color: var(--accent-color); color: white !important; text-decoration: none; border-radius: 6px; font-weight: bold; width: 100%; box-sizing: border-box; text-align: center; }
+        
+        .btn-link { display: inline-block; margin-top: 15px; padding: 12px 25px; background: var(--accent-color); color: white !important; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center; width: 100%; box-sizing: border-box; }
+        
+        .footer-links { text-align: center; margin-top: 40px; font-size: 15px; border-top: 2px solid #ddd; padding-top: 20px; padding-bottom: 30px; line-height: 2; }
+        .footer-links a { color: #2980b9; text-decoration: none; margin: 0 10px; font-weight: bold; }
 
-        .loading-container { text-align: center; padding: 50px 20px; }
-        .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loading { text-align: center; padding: 20px; font-weight: bold; color: #7f8c8d; }
     </style>
 </head>
 <body>
-
-<div id="topBanner">
-    <span id="bannerContent"></span>
-    <span id="closeBanner" onclick="document.getElementById('topBanner').style.display='none'">×</span>
-</div>
 
 <div class="header">
     <h1>ארכיון גיליונות "אזמרה לשמך"</h1>
     <h3>שע"י הגאון הגדול רבי עמרם פריד שליט"א</h3>
 </div>
 
-<div class="action-buttons">
-    <a href="https://www.matara.pro/nedarimplus/online/?S=uSwj" target="_blank" class="action-btn btn-donate">
-        תרומות לבית ההוראה לחץ כאן
-        <span>שותפות בהחזקת המפעל הכביר</span>
-    </a>
-    <a href="https://forms.gle/vs5McYqr3HkTaqPt6" target="_blank" class="action-btn btn-ask">
-        לשליחת שאלות לחץ כאן
-        <span>או במייל למזכירות: 6191265@gmail.com</span>
-    </a>
-</div>
+<input type="text" id="searchInput" class="search-box" placeholder="חיפוש נושא, הלכה או מספר גיליון...">
 
-<div class="search-container">
-    <input type="text" id="searchInput" class="search-box" placeholder="חיפוש נושא, הלכה או מספר גיליון...">
-</div>
-
-<div id="loading" class="loading-container">
-    <div class="loader"></div>
-    <div class="loading-text" id="loadingText">טוען את הארכיון... נא להמתין.</div>
-</div>
-
+<div id="loading" class="loading">טוען נתונים מהארכיון... ⏳</div>
 <div class="container" id="archiveContainer"></div>
+
+<div class="footer-links">
+    <div>שאלות ותגובות: 6191265@gmail.com</div>
+    <a href="https://www.matara.pro/nedarimplus/online/?S=uSwj" target="_blank">תרומות לבית ההוראה לחץ כאן</a> | 
+    <a href="https://forms.gle/vs5McYqr3HkTaqPt6" target="_blank">לשליחת שאלות לחץ כאן</a>
+</div>
 
 <script>
     const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbx16QHCHhKDnOIVytK2G6BfPerjgLmc9Y91PI5mOBIgiJF665yGoC3Uz9nNbwbZr1MMZg/exec";
-    const PROXY_URL = "https://corsproxy.io/?" + encodeURIComponent(GOOGLE_URL);
-    
     let archiveData = [];
 
     function render(data, term = "") {
         const container = document.getElementById('archiveContainer');
         const searchTerm = term.trim();
-        const filtered = data.filter(i => 
-            !searchTerm || 
-            i.title.includes(searchTerm) || 
-            (i.subtitle && i.subtitle.includes(searchTerm)) || 
-            i.topics.some(t => t.includes(searchTerm))
-        );
-
-        container.innerHTML = filtered.map(i => `
+        container.innerHTML = data.filter(i => 
+            !searchTerm || i.title.includes(searchTerm) || i.topics.some(t => t.includes(searchTerm))
+        ).map(i => `
             <div class="issue-card" onclick="this.classList.toggle('active')">
                 <div class="issue-header">
                     ${i.title}
                     <span class="issue-subtitle">${i.subtitle || ''}</span>
                 </div>
-                <div class="issue-body" onclick="event.stopPropagation()">
+                <div class="issue-body">
                     ${i.topics.map(t => `<div class="topic-item">${t}</div>`).join('')}
-                    ${i.link ? `<a href="${i.link}" target="_blank" class="btn-download">לקריאת הגיליון המלא והורדה</a>` : ''}
+                    ${i.link ? `<a href="${i.link}" target="_blank" class="btn-link">לקריאת הגיליון המלא והורדה</a>` : ''}
                 </div>
             </div>
         `).join('');
     }
 
     async function init() {
-        const loadingDiv = document.getElementById('loading');
-        const cached = localStorage.getItem('azmara_data');
-
+        // טעינה מהירה מהזיכרון
+        const cached = localStorage.getItem('azmara_stable_v3');
         if (cached) {
             archiveData = JSON.parse(cached);
             render(archiveData);
-            loadingDiv.style.display = 'none';
+            document.getElementById('loading').style.display = 'none';
         }
 
         try {
-            const response = await fetch(PROXY_URL);
-            const rawText = await response.text();
-            const lines = rawText.split(/\n/);
+            // עדכון הנתונים מגוגל
+            const res = await fetch(GOOGLE_URL);
+            const text = await res.text();
+            
+            // בדיקה שקיבלנו טקסט ולא שגיאה
+            if (text.includes('<!DOCTYPE')) return;
+
+            const lines = text.split('\n');
             const newData = [];
-            let currentIssue = null;
+            let current = null;
 
             lines.forEach(line => {
-                let text = line.trim();
-                if (!text) return;
-
-                if (text.startsWith('פרסום:')) {
-                    const content = text.replace('פרסום:', '').trim();
-                    const urlMatch = content.match(/https?:\/\/[^\s\]]+/);
-                    document.getElementById('bannerContent').innerHTML = content.replace(/\[.*?\]|https?:\/\/[^\s\]]+/, urlMatch ? `<a href="${urlMatch[0]}" target="_blank">לחץ כאן</a>` : '');
-                    document.getElementById('topBanner').style.display = 'block';
-                    return;
-                }
-
-                const urlMatch = text.match(/https?:\/\/[^\s\]]+/);
+                let s = line.trim();
+                if (!s || s.includes('ארכיון') || s.includes('שע"י')) return;
                 
-                if (text.startsWith('גיליון')) {
-                    if (currentIssue) newData.push(currentIssue);
-                    currentIssue = { 
-                        title: text.split('[')[0].split('(')[0].trim(), 
+                const urlMatch = s.match(/https?:\/\/[^\s\]]+/);
+
+                if (s.startsWith('גיליון')) {
+                    if (current) newData.push(current);
+                    current = { 
+                        title: s.split('[')[0].split('(')[0].trim(), 
                         subtitle: "", 
                         topics: [], 
                         link: urlMatch ? urlMatch[0] : "" 
                     };
-                } else if (currentIssue) {
-                    if (urlMatch && !currentIssue.link) {
-                        currentIssue.link = urlMatch[0];
-                    } else if (!text.includes('http')) {
-                        if (!currentIssue.subtitle) currentIssue.subtitle = text;
-                        else currentIssue.topics.push(text);
+                } else if (current) {
+                    if (urlMatch && !current.link) {
+                        current.link = urlMatch[0];
+                    } else if (!s.includes('http')) {
+                        if (!current.subtitle) current.subtitle = s;
+                        else current.topics.push(s);
                     }
                 }
             });
-            if (currentIssue) newData.push(currentIssue);
+            if (current) newData.push(current);
 
             if (newData.length > 0) {
                 archiveData = newData;
-                localStorage.setItem('azmara_data', JSON.stringify(newData));
+                localStorage.setItem('azmara_stable_v3', JSON.stringify(newData));
                 render(archiveData);
-                loadingDiv.style.display = 'none';
+                document.getElementById('loading').style.display = 'none';
             }
-        } catch (err) {
-            console.error(err);
+        } catch (e) {
+            console.log("Update check failed");
         }
     }
 
